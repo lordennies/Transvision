@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Transvision</string>
+
+    <!-- Text hint for email field in the login page -->
+    <string name="hint_email">Email</string>
+
+    <!-- Text hint for password field in the login page -->
+    <string name="hint_pass">Password</string>
+
+    <!-- Label for editor menu option to save pet and leave editor [CHAR LIMIT=20] -->
+    <string name="action_save">Save</string>
+</resources>

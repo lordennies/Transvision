@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/activity_margin"
+    tools:context=".EditorActivity">
+
+    <EditText
+        android:id="@+id/edit_tujuan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Tujuan"
+        android:inputType="textCapWords" />
+
+    <EditText
+        android:id="@+id/edit_keperluan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Keperluan"
+        android:inputType="textCapSentences" />
+
+    <EditText
+        android:id="@+id/edit_jum_penumpang"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Jumlah Penumpang"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/edit_tgl_pemakaian"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Tanggal Pemakaian"
+        android:inputType="date" />
+
+</LinearLayout>
