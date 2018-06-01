@@ -32,13 +32,22 @@ public class LoginActivity extends AppCompatActivity {
 
     private AlertDialog.Builder builder;
 
+    private Session session;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        session = new Session(this);
+
         mEmailEditText = findViewById(R.id.edit_user_email);
         mPasswordEditText = findViewById(R.id.edit_user_password);
+
+        if (session.loggedIn()) {
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+        }
 
         Button loginButton = findViewById(R.id.button_login);
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -64,7 +73,9 @@ public class LoginActivity extends AppCompatActivity {
                                     if (code.equals("login_gagal")) {
                                         displayAlert(jsonObject.getString("message"));
                                     } else {
+                                        session.setLoggedIn(true);
                                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        finish();
                                         startActivity(intent);
                                     }
                                 } catch (JSONException e) {
