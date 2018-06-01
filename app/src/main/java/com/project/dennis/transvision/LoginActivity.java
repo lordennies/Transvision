@@ -28,7 +28,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText mEmailEditText, mPasswordEditText;
 
-    private String url = "http://192.168.56.1/dennis/transvision/login.php";
+    private String url = "http://192.168.56.1/dennis/transvision-cls/api/login";
 
     private AlertDialog.Builder builder;
 
@@ -69,8 +69,8 @@ public class LoginActivity extends AppCompatActivity {
                                 try {
                                     JSONArray jsonArray = new JSONArray(response);
                                     JSONObject jsonObject = jsonArray.getJSONObject(0);
-                                    String code = jsonObject.getString("code");
-                                    if (code.equals("login_gagal")) {
+                                    String status = jsonObject.getString("status");
+                                    if (status.equals("failed")) {
                                         displayAlert(jsonObject.getString("message"));
                                     } else {
                                         session.setLoggedIn(true);
@@ -85,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
                         }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(LoginActivity.this, "Error", Toast.LENGTH_LONG).show();
+                                Toast.makeText(LoginActivity.this, "Error bro!", Toast.LENGTH_LONG).show();
                                 error.printStackTrace();
                             }
                         }) {

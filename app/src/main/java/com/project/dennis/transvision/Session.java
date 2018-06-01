@@ -4,9 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 public class Session {
-    SharedPreferences prefs;
-    SharedPreferences.Editor editor;
-    Context context;
+    private SharedPreferences prefs;
+    private SharedPreferences.Editor editor;
+    private Context context;
 
     public Session(Context context) {
         this.context = context;
