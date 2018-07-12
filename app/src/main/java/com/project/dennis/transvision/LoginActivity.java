@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,7 +29,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText mEmailEditText, mPasswordEditText;
 
-    private String url = "http://192.168.56.1/dennis/transvision-cls/api/login";
+    private String url = "http://192.168.100.5/lordennies/transvision-cls/api/login";
 
     private AlertDialog.Builder builder;
 
@@ -55,9 +56,9 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 final String emailString = mEmailEditText.getText().toString().trim();
                 final String passwordString = mPasswordEditText.getText().toString().trim();
+                builder = new AlertDialog.Builder(LoginActivity.this);
 
                 if (TextUtils.isEmpty(emailString) && TextUtils.isEmpty(passwordString)) {
-                    builder = new AlertDialog.Builder(LoginActivity.this);
                     displayAlert("Masukkan email dan password dengan benar");
                     return;
                 }
@@ -70,8 +71,9 @@ public class LoginActivity extends AppCompatActivity {
                                     JSONArray jsonArray = new JSONArray(response);
                                     JSONObject jsonObject = jsonArray.getJSONObject(0);
                                     String status = jsonObject.getString("status");
+                                    String message = jsonObject.getString("message");
                                     if (status.equals("failed")) {
-                                        displayAlert(jsonObject.getString("message"));
+                                        displayAlert(message);
                                     } else {
                                         session.setLoggedIn(true);
                                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
