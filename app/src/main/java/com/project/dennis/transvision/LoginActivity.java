@@ -45,6 +45,8 @@ public class LoginActivity extends AppCompatActivity {
         mEmailEditText = findViewById(R.id.edit_user_email);
         mPasswordEditText = findViewById(R.id.edit_user_password);
 
+        builder = new AlertDialog.Builder(LoginActivity.this);
+
         if (session.loggedIn()) {
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
@@ -56,7 +58,6 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 final String emailString = mEmailEditText.getText().toString().trim();
                 final String passwordString = mPasswordEditText.getText().toString().trim();
-                builder = new AlertDialog.Builder(LoginActivity.this);
 
                 if (TextUtils.isEmpty(emailString) && TextUtils.isEmpty(passwordString)) {
                     displayAlert("Masukkan email dan password dengan benar");
@@ -71,9 +72,8 @@ public class LoginActivity extends AppCompatActivity {
                                     JSONArray jsonArray = new JSONArray(response);
                                     JSONObject jsonObject = jsonArray.getJSONObject(0);
                                     String status = jsonObject.getString("status");
-                                    String message = jsonObject.getString("message");
                                     if (status.equals("failed")) {
-                                        displayAlert(message);
+                                        displayAlert(jsonObject.getString("message"));
                                     } else {
                                         session.setLoggedIn(true);
                                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
