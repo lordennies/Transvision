@@ -28,11 +28,11 @@ import java.util.Map;
 
 public class EditorActivity extends AppCompatActivity {
 
-    String tujuanString, keperluanString, jumPenumpangString, tglPemakaianString;
+    String action, tujuanString, keperluanString, jumPenumpangString, tglPemakaianString;
 
     private EditText mTujuanEditText, mKeperluanEditText, mJumPenumpangEditText, mTglPemakaianEditText;
 
-    private String url = "http://192.168.56.1/dennis/transvision/pinjam.php";
+    private String url = "http://192.168.100.5/lordennies/transvision-cls/api/pinjam";
 
     private boolean mPeminjamanHasChanged = false;
 
@@ -69,6 +69,7 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     private void simpanPeminjaman() {
+        action = "create";
         tujuanString = mTujuanEditText.getText().toString().trim();
         keperluanString = mKeperluanEditText.getText().toString().trim();
         jumPenumpangString = mJumPenumpangEditText.getText().toString().trim();
@@ -87,9 +88,12 @@ public class EditorActivity extends AppCompatActivity {
                         try {
                             JSONArray jsonArray = new JSONArray(response);
                             JSONObject jsonObject = jsonArray.getJSONObject(0);
-                            String code = jsonObject.getString("code");
-                            if (code.equals("peminjaman_berhasil")) {
-                                Toast.makeText(EditorActivity.this, "Peminjaman ditambahkan",
+                            String status = jsonObject.getString("status");
+                            if (status.equals("success")) {
+                                Toast.makeText(EditorActivity.this, "Permohonan ditambahkan",
+                                        Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(EditorActivity.this, "Penambahan gagal",
                                         Toast.LENGTH_SHORT).show();
                             }
                         } catch (JSONException e) {
@@ -105,6 +109,7 @@ public class EditorActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
+                params.put("action", action);
                 params.put("tujuan", tujuanString);
                 params.put("keperluan", keperluanString);
                 params.put("jum_penumpang", jumPenumpangString);
