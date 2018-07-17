@@ -126,6 +126,7 @@ public class EditorActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_save:
                 simpanPeminjaman();
+                finish();
                 return true;
             case android.R.id.home:
                 if (!mPeminjamanHasChanged) {
