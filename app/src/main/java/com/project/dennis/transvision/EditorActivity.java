@@ -34,6 +34,7 @@ public class EditorActivity extends AppCompatActivity {
 
     private String url = "http://192.168.100.5/lordennies/transvision-cls/api/pinjam";
 
+    /** Untuk mengetahui form peminjaman sudah diedit (true) atau belum (false) */
     private boolean mPeminjamanHasChanged = false;
 
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
@@ -54,18 +55,13 @@ public class EditorActivity extends AppCompatActivity {
         mJumPenumpangEditText = findViewById(R.id.edit_jum_penumpang);
         mTglPemakaianEditText = findViewById(R.id.edit_tgl_pemakaian);
 
+        // Mengeset OnTouchListeners di semua input field, jadi bisa tahu apakah user
+        // telah menyentuh atau mengeditnya. Hal ini memberitahu kita apakah ada perubahan yang
+        // belum disimpan atau tidak, jika user akan meninggalkan editor tanpa menyimpannya.
         mTujuanEditText.setOnTouchListener(mTouchListener);
         mKeperluanEditText.setOnTouchListener(mTouchListener);
         mJumPenumpangEditText.setOnTouchListener(mTouchListener);
         mTglPemakaianEditText.setOnTouchListener(mTouchListener);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu options from the res/menu/menu_editor.xml file.
-        // This adds menu items to the app bar.
-        getMenuInflater().inflate(R.menu.menu_editor, menu);
-        return true;
     }
 
     private void simpanPeminjaman() {
@@ -78,47 +74,52 @@ public class EditorActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(tujuanString) || TextUtils.isEmpty(keperluanString) ||
                 TextUtils.isEmpty(jumPenumpangString) || TextUtils.isEmpty(tglPemakaianString)) {
             showUncompletedFormDialog();
-            return;
-        }
-
-        StringRequest stringRequest = new StringRequest
-                (Request.Method.POST, url, new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONArray jsonArray = new JSONArray(response);
-                            JSONObject jsonObject = jsonArray.getJSONObject(0);
-                            String status = jsonObject.getString("status");
-                            if (status.equals("success")) {
-                                Toast.makeText(EditorActivity.this, "Permohonan ditambahkan",
-                                        Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(EditorActivity.this, "Penambahan gagal",
-                                        Toast.LENGTH_SHORT).show();
+        } else {
+            StringRequest stringRequest = new StringRequest
+                    (Request.Method.POST, url, new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                JSONArray jsonArray = new JSONArray(response);
+                                JSONObject jsonObject = jsonArray.getJSONObject(0);
+                                String status = jsonObject.getString("status");
+                                if (status.equals("success")) {
+                                    Toast.makeText(EditorActivity.this, "Permohonan ditambahkan",
+                                            Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(EditorActivity.this, "Penambahan gagal",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
                         }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
 
-                    }
-                }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("action", action);
-                params.put("tujuan", tujuanString);
-                params.put("keperluan", keperluanString);
-                params.put("jum_penumpang", jumPenumpangString);
-                params.put("tgl_pemakaian", tglPemakaianString);
-                return params;
-            }
-        };
-        MySingleton.getInstance(EditorActivity.this).addToRequestQueue(stringRequest);
-        finish();
+                        }
+                    }) {
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("action", action);
+                    params.put("tujuan", tujuanString);
+                    params.put("keperluan", keperluanString);
+                    params.put("jum_penumpang", jumPenumpangString);
+                    params.put("tgl_pemakaian", tglPemakaianString);
+                    return params;
+                }
+            };
+            MySingleton.getInstance(EditorActivity.this).addToRequestQueue(stringRequest);
+            finish();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_editor, menu);
+        return true;
     }
 
     @Override
@@ -126,7 +127,6 @@ public class EditorActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_save:
                 simpanPeminjaman();
-                finish();
                 return true;
             case android.R.id.home:
                 if (!mPeminjamanHasChanged) {

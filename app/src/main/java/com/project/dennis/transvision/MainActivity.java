@@ -33,8 +33,6 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private PeminjamanAdapter mAdapter;
 
-    List<Peminjaman> peminjamanList;
-
     private Session session;
 
     @Override
@@ -56,16 +54,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        peminjamanList = new ArrayList<>();
-
         recyclerView = findViewById(R.id.rv_peminjaman);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
         loadPeminjaman();
     }
 
     private void loadPeminjaman() {
+        final List<Peminjaman> peminjamanList = new ArrayList<>();
+
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
