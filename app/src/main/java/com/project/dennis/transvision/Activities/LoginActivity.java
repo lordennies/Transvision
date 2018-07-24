@@ -1,7 +1,8 @@
-package com.project.dennis.transvision;
+package com.project.dennis.transvision.Activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +18,10 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.project.dennis.transvision.Data.ConfigLink;
+import com.project.dennis.transvision.MySingleton;
+import com.project.dennis.transvision.R;
+import com.project.dennis.transvision.Session;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText mEmailEditText, mPasswordEditText;
 
-    private String url = "http://192.168.100.5/lordennies/transvision-cls/api/login";
+    private String url = ConfigLink.login;
 
     private AlertDialog.Builder builder;
 
@@ -75,8 +80,11 @@ public class LoginActivity extends AppCompatActivity {
                                     if (status.equals("failed")) {
                                         displayAlert(jsonObject.getString("message"));
                                     } else {
+                                        Toast.makeText(LoginActivity.this, "" + jsonObject.getString("user_id"), Toast.LENGTH_LONG).show();
                                         session.setLoggedIn(true);
                                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        String id_user = jsonObject.getString("user_id");
+                                        saveAttribute(id_user);
                                         finish();
                                         startActivity(intent);
                                     }
@@ -102,6 +110,13 @@ public class LoginActivity extends AppCompatActivity {
                 MySingleton.getInstance(LoginActivity.this).addToRequestQueue(stringRequest);
             }
         });
+    }
+
+    private void saveAttribute(String user_id) {
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(ConfigLink.loginPref, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("user_id", user_id);
+        editor.commit();
     }
 
     public void displayAlert(String message) {

@@ -1,4 +1,4 @@
-package com.project.dennis.transvision;
+package com.project.dennis.transvision.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.project.dennis.transvision.Data.ConfigLink;
+import com.project.dennis.transvision.Models.Peminjaman;
+import com.project.dennis.transvision.Adapters.PeminjamanAdapter;
+import com.project.dennis.transvision.R;
+import com.project.dennis.transvision.Session;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private String url = "http://192.168.100.5/lordennies/transvision-cls/api/pinjam";
+    private String url = ConfigLink.peminjaman;
 
     private RecyclerView recyclerView;
     private PeminjamanAdapter mAdapter;

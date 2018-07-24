@@ -1,11 +1,13 @@
-package com.project.dennis.transvision;
+package com.project.dennis.transvision.Activities;
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -18,6 +20,9 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.project.dennis.transvision.Data.ConfigLink;
+import com.project.dennis.transvision.MySingleton;
+import com.project.dennis.transvision.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,11 +33,11 @@ import java.util.Map;
 
 public class EditorActivity extends AppCompatActivity {
 
-    String action, tujuanString, keperluanString, jumPenumpangString, tglPemakaianString;
+    String action, tujuanString, keperluanString, jumPenumpangString, tglPemakaianString, userIdString;
 
     private EditText mTujuanEditText, mKeperluanEditText, mJumPenumpangEditText, mTglPemakaianEditText;
 
-    private String url = "http://192.168.100.5/lordennies/transvision-cls/api/pinjam";
+    private String url = ConfigLink.peminjaman;
 
     /** Untuk mengetahui form peminjaman sudah diedit (true) atau belum (false) */
     private boolean mPeminjamanHasChanged = false;
@@ -62,6 +67,9 @@ public class EditorActivity extends AppCompatActivity {
         mKeperluanEditText.setOnTouchListener(mTouchListener);
         mJumPenumpangEditText.setOnTouchListener(mTouchListener);
         mTglPemakaianEditText.setOnTouchListener(mTouchListener);
+
+        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.loginPref, MODE_PRIVATE);
+        userIdString = sharedPreferences.getString("user_id", "");
     }
 
     private void simpanPeminjaman() {
@@ -104,6 +112,7 @@ public class EditorActivity extends AppCompatActivity {
                 protected Map<String, String> getParams() throws AuthFailureError {
                     Map<String, String> params = new HashMap<>();
                     params.put("action", action);
+                    params.put("user_id", userIdString);
                     params.put("tujuan", tujuanString);
                     params.put("keperluan", keperluanString);
                     params.put("jum_penumpang", jumPenumpangString);
