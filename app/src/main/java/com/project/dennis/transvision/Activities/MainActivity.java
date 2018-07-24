@@ -1,6 +1,7 @@
 package com.project.dennis.transvision.Activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -20,7 +21,6 @@ import com.project.dennis.transvision.Data.ConfigLink;
 import com.project.dennis.transvision.Models.Peminjaman;
 import com.project.dennis.transvision.Adapters.PeminjamanAdapter;
 import com.project.dennis.transvision.R;
-import com.project.dennis.transvision.Session;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,17 +38,10 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private PeminjamanAdapter mAdapter;
 
-    private Session session;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        session = new Session(this);
-        if (!session.loggedIn()) {
-            logout();
-        }
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -119,14 +112,20 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_logout:
                 logout();
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
+                finish();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void logout() {
-        session.setLoggedIn(false);
-        finish();
-        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.loginPref, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.commit();
+
+
     }
 }

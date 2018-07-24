@@ -21,7 +21,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.project.dennis.transvision.Data.ConfigLink;
 import com.project.dennis.transvision.MySingleton;
 import com.project.dennis.transvision.R;
-import com.project.dennis.transvision.Session;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,92 +29,64 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText mEmailEditText, mPasswordEditText;
+
+    private Button loginButton;
 
     private String url = ConfigLink.login;
 
     private AlertDialog.Builder builder;
 
-    private Session session;
+    private String mUserId, mUsername, mEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        session = new Session(this);
+        initView();
+        builder = new AlertDialog.Builder(this);
+        loginButton.setOnClickListener(this);
 
-        mEmailEditText = findViewById(R.id.edit_user_email);
-        mPasswordEditText = findViewById(R.id.edit_user_password);
+        getPrefUser();
+        prefNotNull();
 
-        builder = new AlertDialog.Builder(LoginActivity.this);
-
-        if (session.loggedIn()) {
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-            finish();
-        }
-
-        Button loginButton = findViewById(R.id.button_login);
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final String emailString = mEmailEditText.getText().toString().trim();
-                final String passwordString = mPasswordEditText.getText().toString().trim();
-
-                if (TextUtils.isEmpty(emailString) && TextUtils.isEmpty(passwordString)) {
-                    displayAlert("Masukkan email dan password dengan benar");
-                    return;
-                }
-
-                StringRequest stringRequest = new StringRequest
-                        (Request.Method.POST, url, new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                try {
-                                    JSONArray jsonArray = new JSONArray(response);
-                                    JSONObject jsonObject = jsonArray.getJSONObject(0);
-                                    String status = jsonObject.getString("status");
-                                    if (status.equals("failed")) {
-                                        displayAlert(jsonObject.getString("message"));
-                                    } else {
-                                        Toast.makeText(LoginActivity.this, "" + jsonObject.getString("user_id"), Toast.LENGTH_LONG).show();
-                                        session.setLoggedIn(true);
-                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                        String id_user = jsonObject.getString("user_id");
-                                        saveAttribute(id_user);
-                                        finish();
-                                        startActivity(intent);
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(LoginActivity.this, "Error bro!", Toast.LENGTH_LONG).show();
-                                error.printStackTrace();
-                            }
-                        }) {
-                    @Override
-                    protected Map<String, String> getParams() throws AuthFailureError {
-                        Map<String, String> params = new HashMap<>();
-                        params.put("email", emailString);
-                        params.put("password", passwordString);
-                        return params;
-                    }
-                };
-                MySingleton.getInstance(LoginActivity.this).addToRequestQueue(stringRequest);
-            }
-        });
+        mEmailEditText.setText("dennis@gmail.com");
+        mPasswordEditText.setText("dennis");
     }
 
-    private void saveAttribute(String user_id) {
+    private void initView() {
+        mEmailEditText = findViewById(R.id.edit_user_email);
+        mPasswordEditText = findViewById(R.id.edit_user_password);
+        loginButton = findViewById(R.id.button_login);
+    }
+
+    private void getPrefUser() {
+        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.loginPref, MODE_PRIVATE);
+        mUserId = sharedPreferences.getString("user_id", "");
+        mUsername = sharedPreferences.getString("username", "");
+        mEmail = sharedPreferences.getString("email", "");
+
+        mEmailEditText.setText(mEmail);
+    }
+
+    private void prefNotNull() {
+        String emailString = mEmailEditText.getText().toString().trim();
+        if (emailString.length() > 0) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
+
+    private void saveAttribute(String user_id, String username, String email) {
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(ConfigLink.loginPref, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("user_id", user_id);
+        editor.putString("username", username);
+        editor.putString("email", email);
         editor.commit();
     }
 
@@ -133,5 +104,62 @@ public class LoginActivity extends AppCompatActivity {
         });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view == loginButton) {
+            loginCheck();
+        }
+    }
+
+    private void loginCheck() {
+        final String emailString = mEmailEditText.getText().toString().trim();
+        final String passwordString = mPasswordEditText.getText().toString().trim();
+
+        if (TextUtils.isEmpty(emailString) && TextUtils.isEmpty(passwordString)) {
+            displayAlert("Masukkan email dan password dengan benar");
+            return;
+        }
+
+        StringRequest stringRequest = new StringRequest
+                (Request.Method.POST, url, new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
+                            JSONObject jsonObject = jsonArray.getJSONObject(0);
+                            String status = jsonObject.getString("status");
+                            if (status.equals("failed")) {
+                                displayAlert(jsonObject.getString("message"));
+                            } else {
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                String userIdString = jsonObject.getString("user_id");
+                                String usernameString = jsonObject.getString("user_id");
+                                String emailString = jsonObject.getString("user_id");
+                                saveAttribute(userIdString, usernameString, emailString);
+                                finish();
+                                startActivity(intent);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(LoginActivity.this, "Error bro!", Toast.LENGTH_LONG).show();
+                        error.printStackTrace();
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("email", emailString);
+                params.put("password", passwordString);
+                return params;
+            }
+        };
+        MySingleton.getInstance(LoginActivity.this).addToRequestQueue(stringRequest);
     }
 }
