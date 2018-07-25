@@ -81,31 +81,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    private void saveAttribute(String user_id, String username, String email) {
-        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(ConfigLink.loginPref, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("user_id", user_id);
-        editor.putString("username", username);
-        editor.putString("email", email);
-        editor.commit();
-    }
-
-    public void displayAlert(String message) {
-        builder.setMessage(message);
-        builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-                mEmailEditText.setText("");
-                mPasswordEditText.setText("");
-            }
-        });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
-
     @Override
     public void onClick(View view) {
         if (view == loginButton) {
@@ -161,5 +136,30 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
         };
         MySingleton.getInstance(LoginActivity.this).addToRequestQueue(stringRequest);
+    }
+
+    private void saveAttribute(String user_id, String username, String email) {
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(ConfigLink.loginPref, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("user_id", user_id);
+        editor.putString("username", username);
+        editor.putString("email", email);
+        editor.commit();
+    }
+
+    public void displayAlert(String message) {
+        builder.setMessage(message);
+        builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+                mEmailEditText.setText("");
+                mPasswordEditText.setText("");
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 }
