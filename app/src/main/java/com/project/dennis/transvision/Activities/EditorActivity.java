@@ -33,11 +33,11 @@ import java.util.Map;
 
 public class EditorActivity extends AppCompatActivity {
 
-    String action, tujuanString, keperluanString, jumPenumpangString, tglPemakaianString, userIdString;
+    private String action, tujuanString, keperluanString, jumPenumpangString, tglPemakaianString, userIdString;
 
     private EditText mTujuanEditText, mKeperluanEditText, mJumPenumpangEditText, mTglPemakaianEditText;
 
-    private String url = ConfigLink.peminjaman;
+    private String url = ConfigLink.PEMINJAMAN;
 
     /** Untuk mengetahui form peminjaman sudah diedit (true) atau belum (false) */
     private boolean mPeminjamanHasChanged = false;
@@ -68,7 +68,7 @@ public class EditorActivity extends AppCompatActivity {
         mJumPenumpangEditText.setOnTouchListener(mTouchListener);
         mTglPemakaianEditText.setOnTouchListener(mTouchListener);
 
-        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.loginPref, MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
         userIdString = sharedPreferences.getString("user_id", "");
     }
 
@@ -111,12 +111,12 @@ public class EditorActivity extends AppCompatActivity {
                 @Override
                 protected Map<String, String> getParams() throws AuthFailureError {
                     Map<String, String> params = new HashMap<>();
-                    params.put("action", action);
-                    params.put("user_id", userIdString);
-                    params.put("tujuan", tujuanString);
-                    params.put("keperluan", keperluanString);
-                    params.put("jum_penumpang", jumPenumpangString);
-                    params.put("tgl_pemakaian", tglPemakaianString);
+                    params.put(ConfigLink.ACTION, action);
+                    params.put(ConfigLink.USER_ID, userIdString);
+                    params.put(ConfigLink.TUJUAN, tujuanString);
+                    params.put(ConfigLink.KEPERLUAN, keperluanString);
+                    params.put(ConfigLink.JUM_PENUMPANG, jumPenumpangString);
+                    params.put(ConfigLink.TGL_PEMAKAIAN, tglPemakaianString);
                     return params;
                 }
             };

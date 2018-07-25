@@ -35,7 +35,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private Button loginButton;
 
-    private String url = ConfigLink.login;
+    private String url = ConfigLink.LOGIN;
 
     private AlertDialog.Builder builder;
 
@@ -64,7 +64,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void getPrefUser() {
-        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.loginPref, MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
         mUserId = sharedPreferences.getString("user_id", "");
         mUsername = sharedPreferences.getString("username", "");
         mEmail = sharedPreferences.getString("email", "");
@@ -139,7 +139,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void saveAttribute(String user_id, String username, String email) {
-        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(ConfigLink.loginPref, MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("user_id", user_id);
         editor.putString("username", username);
