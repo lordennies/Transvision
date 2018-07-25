@@ -3,6 +3,7 @@ package com.project.dennis.transvision.Activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -29,44 +30,44 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements PeminjamanAdapter.ListItemClickListener, View.OnClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
-    private String url = ConfigLink.PEMINJAMAN;
-
     private RecyclerView recyclerView;
     private PeminjamanAdapter mAdapter;
+    private List<Peminjaman> peminjamanList;
+    private Toast mToast;
+    private FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, EditorActivity.class);
-                startActivity(intent);
-            }
-        });
-
+        fab = findViewById(R.id.fab);
+        fab.setOnClickListener(this);
         recyclerView = findViewById(R.id.rv_peminjaman);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
+
+        if (savedInstanceState != null) {
+
+        } else {
+            loadPeminjaman();
+        }
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        loadPeminjaman();
+    public void onClick(View view) {
+        if (view == fab) {
+            Intent intent = new Intent(MainActivity.this, EditorActivity.class);
+            startActivity(intent);
+        }
     }
 
     private void loadPeminjaman() {
-        final List<Peminjaman> peminjamanList = new ArrayList<>();
-
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+        peminjamanList = new ArrayList<>();
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, ConfigLink.PEMINJAMAN,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -75,14 +76,13 @@ public class MainActivity extends AppCompatActivity {
                             for (int i = 0; i < peminjamanArray.length(); i++) {
                                 JSONObject peminjamanObject = peminjamanArray.getJSONObject(i);
 
-                                String tujuan = peminjamanObject.getString("tujuan");
-                                String tgl_pemakaian = peminjamanObject.getString("tgl_pemakaian");
+                                String tujuan = peminjamanObject.getString(ConfigLink.TUJUAN);
+                                String tglPemakaian = peminjamanObject.getString(ConfigLink.TGL_PEMAKAIAN);
 
-                                Peminjaman peminjaman = new Peminjaman(tujuan, tgl_pemakaian);
+                                Peminjaman peminjaman = new Peminjaman(tujuan, tglPemakaian);
                                 peminjamanList.add(peminjaman);
                             }
-
-                            mAdapter = new PeminjamanAdapter(MainActivity.this, peminjamanList);
+                            mAdapter = new PeminjamanAdapter(MainActivity.this, peminjamanList, MainActivity.this);
                             recyclerView.setAdapter(mAdapter);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -120,10 +120,24 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onListItemClick(int clickedItemIndex) {
+        if (mToast != null) {
+            mToast.cancel();
+        }
+        Intent intent = new Intent(this, DetailActivity.class);
+        startActivity(intent);
+    }
+
     private void logout() {
         SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.clear();
         editor.commit();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 }

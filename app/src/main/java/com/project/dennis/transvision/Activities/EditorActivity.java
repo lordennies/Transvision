@@ -1,6 +1,7 @@
 package com.project.dennis.transvision.Activities;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -33,11 +34,9 @@ import java.util.Map;
 
 public class EditorActivity extends AppCompatActivity {
 
-    private String action, tujuanString, keperluanString, jumPenumpangString, tglPemakaianString, userIdString;
+    private String tujuanString, keperluanString, jumPenumpangString, tglPemakaianString;
 
     private EditText mTujuanEditText, mKeperluanEditText, mJumPenumpangEditText, mTglPemakaianEditText;
-
-    private String url = ConfigLink.PEMINJAMAN;
 
     /** Untuk mengetahui form peminjaman sudah diedit (true) atau belum (false) */
     private boolean mPeminjamanHasChanged = false;
@@ -54,11 +53,7 @@ public class EditorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
-
-        mTujuanEditText = findViewById(R.id.edit_tujuan);
-        mKeperluanEditText = findViewById(R.id.edit_keperluan);
-        mJumPenumpangEditText = findViewById(R.id.edit_jum_penumpang);
-        mTglPemakaianEditText = findViewById(R.id.edit_tgl_pemakaian);
+        initView();
 
         // Mengeset OnTouchListeners di semua input field, jadi bisa tahu apakah user
         // telah menyentuh atau mengeditnya. Hal ini memberitahu kita apakah ada perubahan yang
@@ -67,13 +62,16 @@ public class EditorActivity extends AppCompatActivity {
         mKeperluanEditText.setOnTouchListener(mTouchListener);
         mJumPenumpangEditText.setOnTouchListener(mTouchListener);
         mTglPemakaianEditText.setOnTouchListener(mTouchListener);
+    }
 
-        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
-        userIdString = sharedPreferences.getString("user_id", "");
+    private void initView() {
+        mTujuanEditText = findViewById(R.id.edit_tujuan);
+        mKeperluanEditText = findViewById(R.id.edit_keperluan);
+        mJumPenumpangEditText = findViewById(R.id.edit_jum_penumpang);
+        mTglPemakaianEditText = findViewById(R.id.edit_tgl_pemakaian);
     }
 
     private void simpanPeminjaman() {
-        action = "create";
         tujuanString = mTujuanEditText.getText().toString().trim();
         keperluanString = mKeperluanEditText.getText().toString().trim();
         jumPenumpangString = mJumPenumpangEditText.getText().toString().trim();
@@ -83,45 +81,12 @@ public class EditorActivity extends AppCompatActivity {
                 TextUtils.isEmpty(jumPenumpangString) || TextUtils.isEmpty(tglPemakaianString)) {
             showUncompletedFormDialog();
         } else {
-            StringRequest stringRequest = new StringRequest
-                    (Request.Method.POST, url, new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            try {
-                                JSONArray jsonArray = new JSONArray(response);
-                                JSONObject jsonObject = jsonArray.getJSONObject(0);
-                                String status = jsonObject.getString("status");
-                                if (status.equals("success")) {
-                                    Toast.makeText(EditorActivity.this, "Permohonan ditambahkan",
-                                            Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(EditorActivity.this, "Penambahan gagal",
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-
-                        }
-                    }) {
-                @Override
-                protected Map<String, String> getParams() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<>();
-                    params.put(ConfigLink.ACTION, action);
-                    params.put(ConfigLink.USER_ID, userIdString);
-                    params.put(ConfigLink.TUJUAN, tujuanString);
-                    params.put(ConfigLink.KEPERLUAN, keperluanString);
-                    params.put(ConfigLink.JUM_PENUMPANG, jumPenumpangString);
-                    params.put(ConfigLink.TGL_PEMAKAIAN, tglPemakaianString);
-                    return params;
-                }
-            };
-            MySingleton.getInstance(EditorActivity.this).addToRequestQueue(stringRequest);
-            finish();
+            Intent intentConfirmAct = new Intent(this, ConfirmationActivity.class);
+            intentConfirmAct.putExtra("tujuan", tujuanString);
+            intentConfirmAct.putExtra("keperluan", keperluanString);
+            intentConfirmAct.putExtra("jum_penumpang", jumPenumpangString);
+            intentConfirmAct.putExtra("tgl_pemakaian", tglPemakaianString);
+            startActivity(intentConfirmAct);
         }
     }
 

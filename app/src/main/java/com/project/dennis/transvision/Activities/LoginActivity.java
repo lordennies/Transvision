@@ -1,5 +1,6 @@
 package com.project.dennis.transvision.Activities;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,14 +33,10 @@ import java.util.Map;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText mEmailEditText, mPasswordEditText;
-
-    private Button loginButton;
-
-    private String url = ConfigLink.LOGIN;
-
-    private AlertDialog.Builder builder;
-
+    private Button mLoginButton;
+    private AlertDialog.Builder mBuilder;
     private String mUserId, mUsername, mEmail;
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,20 +44,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_login);
 
         initView();
-        builder = new AlertDialog.Builder(this);
-        loginButton.setOnClickListener(this);
+        mBuilder = new AlertDialog.Builder(this);
+        mLoginButton.setOnClickListener(this);
 
         getPrefUser();
         prefNotNull();
-
-        mEmailEditText.setText("dennis@gmail.com");
-        mPasswordEditText.setText("dennis");
     }
 
     private void initView() {
         mEmailEditText = findViewById(R.id.edit_user_email);
         mPasswordEditText = findViewById(R.id.edit_user_password);
-        loginButton = findViewById(R.id.button_login);
+        mLoginButton = findViewById(R.id.button_login);
     }
 
     private void getPrefUser() {
@@ -83,7 +77,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onClick(View view) {
-        if (view == loginButton) {
+        if (view == mLoginButton) {
             loginCheck();
         }
     }
@@ -92,15 +86,22 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         final String emailString = mEmailEditText.getText().toString().trim();
         final String passwordString = mPasswordEditText.getText().toString().trim();
 
-        if (TextUtils.isEmpty(emailString) && TextUtils.isEmpty(passwordString)) {
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setMessage("Mohon Tunggu...");
+        mProgressDialog.show();
+
+        if (TextUtils.isEmpty(emailString) || TextUtils.isEmpty(passwordString)) {
+            mProgressDialog.dismiss();
             displayAlert("Masukkan email dan password dengan benar");
             return;
         }
 
         StringRequest stringRequest = new StringRequest
-                (Request.Method.POST, url, new Response.Listener<String>() {
+                (Request.Method.POST, ConfigLink.LOGIN, new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        mProgressDialog.dismiss();
+                        Log.d("loginResponse", response);
                         try {
                             JSONArray jsonArray = new JSONArray(response);
                             JSONObject jsonObject = jsonArray.getJSONObject(0);
@@ -110,11 +111,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             } else {
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 String userIdString = jsonObject.getString("user_id");
-                                String usernameString = jsonObject.getString("user_id");
-                                String emailString = jsonObject.getString("user_id");
+                                String usernameString = jsonObject.getString("username");
+                                String emailString = jsonObject.getString("email");
                                 saveAttribute(userIdString, usernameString, emailString);
-                                finish();
                                 startActivity(intent);
+                                finish();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -123,6 +124,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        mProgressDialog.hide();
                         Toast.makeText(LoginActivity.this, "Error bro!", Toast.LENGTH_LONG).show();
                         error.printStackTrace();
                     }
@@ -135,7 +137,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 return params;
             }
         };
-        MySingleton.getInstance(LoginActivity.this).addToRequestQueue(stringRequest);
+        MySingleton.getInstance(this).addToRequestQueue(stringRequest);
     }
 
     private void saveAttribute(String user_id, String username, String email) {
@@ -148,8 +150,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     public void displayAlert(String message) {
-        builder.setMessage(message);
-        builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+        mBuilder.setMessage(message);
+        mBuilder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (dialog != null) {
@@ -157,9 +159,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 }
                 mEmailEditText.setText("");
                 mPasswordEditText.setText("");
+                mEmailEditText.requestFocus();
             }
         });
-        AlertDialog alertDialog = builder.create();
+        AlertDialog alertDialog = mBuilder.create();
         alertDialog.show();
     }
 }
