@@ -22,6 +22,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.project.dennis.transvision.Data.ConfigLink;
+import com.project.dennis.transvision.Models.Peminjaman;
 import com.project.dennis.transvision.MySingleton;
 import com.project.dennis.transvision.R;
 
@@ -33,8 +34,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EditorActivity extends AppCompatActivity {
-
-    private String tujuanString, keperluanString, jumPenumpangString, tglPemakaianString;
 
     private EditText mTujuanEditText, mKeperluanEditText, mJumPenumpangEditText, mTglPemakaianEditText;
 
@@ -72,20 +71,22 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     private void simpanPeminjaman() {
-        tujuanString = mTujuanEditText.getText().toString().trim();
-        keperluanString = mKeperluanEditText.getText().toString().trim();
-        jumPenumpangString = mJumPenumpangEditText.getText().toString().trim();
-        tglPemakaianString = mTglPemakaianEditText.getText().toString().trim();
+        String tujuan = mTujuanEditText.getText().toString().trim();
+        String keperluan = mKeperluanEditText.getText().toString().trim();
+        String jumPenumpang = mJumPenumpangEditText.getText().toString().trim();
+        String tglPemakaian = mTglPemakaianEditText.getText().toString().trim();
 
-        if (TextUtils.isEmpty(tujuanString) || TextUtils.isEmpty(keperluanString) ||
-                TextUtils.isEmpty(jumPenumpangString) || TextUtils.isEmpty(tglPemakaianString)) {
+        Peminjaman peminjaman = new Peminjaman(tujuan, keperluan, jumPenumpang, tglPemakaian);
+
+        if (TextUtils.isEmpty(tujuan) || TextUtils.isEmpty(keperluan) ||
+                TextUtils.isEmpty(jumPenumpang) || TextUtils.isEmpty(tglPemakaian)) {
             showUncompletedFormDialog();
         } else {
             Intent intentConfirmAct = new Intent(this, ConfirmationActivity.class);
-            intentConfirmAct.putExtra("tujuan", tujuanString);
-            intentConfirmAct.putExtra("keperluan", keperluanString);
-            intentConfirmAct.putExtra("jum_penumpang", jumPenumpangString);
-            intentConfirmAct.putExtra("tgl_pemakaian", tglPemakaianString);
+            intentConfirmAct.putExtra(ConfigLink.TUJUAN, peminjaman.getTujuan());
+            intentConfirmAct.putExtra(ConfigLink.KEPERLUAN, peminjaman.getKeperluan());
+            intentConfirmAct.putExtra(ConfigLink.JUM_PENUMPANG, peminjaman.getJumPenumpang());
+            intentConfirmAct.putExtra(ConfigLink.TGL_PEMAKAIAN, peminjaman.getTglPemakaian());
             startActivity(intentConfirmAct);
         }
     }

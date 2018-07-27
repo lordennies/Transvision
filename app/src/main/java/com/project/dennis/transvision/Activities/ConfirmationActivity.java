@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -55,6 +56,7 @@ public class ConfirmationActivity extends AppCompatActivity implements View.OnCl
         mKirimButton = findViewById(R.id.btn_kirim);
     }
 
+    /* Mengambil data menggunakan intent dari EditorActivity */
     private void getData() {
         Intent intentEditorAct = getIntent();
         tujuanString = intentEditorAct.getStringExtra("tujuan");
@@ -63,6 +65,7 @@ public class ConfirmationActivity extends AppCompatActivity implements View.OnCl
         tglPemakaianString = intentEditorAct.getStringExtra("tgl_pemakaian");
     }
 
+    /* Menampilkan data sebelum dikirim ke database */
     private void displayData() {
         mTujuanText.setText(tujuanString);
         mKeperluanText.setText(keperluanString);
@@ -92,13 +95,14 @@ public class ConfirmationActivity extends AppCompatActivity implements View.OnCl
                             JSONObject jsonObject = jsonArray.getJSONObject(0);
                             String status = jsonObject.getString("status");
                             if (status.equals("success")) {
+                                saveAttribute();
                                 Intent intentWaitingAct = new Intent(ConfirmationActivity.this, WaitingActivity.class);
                                 startActivity(intentWaitingAct);
                                 finishAffinity();
                                 Toast.makeText(ConfirmationActivity.this, "Permohonan ditambahkan",
                                         Toast.LENGTH_SHORT).show();
                             } else {
-                                Toast.makeText(ConfirmationActivity.this, "Penambahan gagal",
+                                Toast.makeText(ConfirmationActivity.this, "Permohonan gagal ditambahkan",
                                         Toast.LENGTH_SHORT).show();
                             }
                         } catch (JSONException e) {
@@ -125,5 +129,12 @@ public class ConfirmationActivity extends AppCompatActivity implements View.OnCl
             }
         };
         MySingleton.getInstance(this).addToRequestQueue(stringRequest);
+    }
+
+    private void saveAttribute() {
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("has_made_req", "1");
+        editor.commit();
     }
 }

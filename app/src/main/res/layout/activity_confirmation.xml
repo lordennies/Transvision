@@ -4,31 +4,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:padding="@dimen/activity_margin"
     tools:context=".Activities.ConfirmationActivity">
 
     <TextView
         android:id="@+id/tv_tujuan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp" />
+        android:padding="16dp"
+        android:text="Kudus" />
 
     <TextView
         android:id="@+id/tv_keperluan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp" />
+        android:padding="16dp"
+        android:text="Dismantle" />
 
     <TextView
         android:id="@+id/tv_jum_penumpang"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp" />
+        android:padding="16dp"
+        android:text="2" />
 
     <TextView
         android:id="@+id/tv_tgl_pemakaian"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp" />
+        android:padding="16dp"
+        android:text="25-07-2018" />
 
     <Button
         android:id="@+id/btn_kirim"

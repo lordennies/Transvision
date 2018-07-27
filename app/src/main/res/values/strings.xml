@@ -1,12 +1,15 @@
 <resources>
     <string name="app_name">Transvision</string>
 
-    <!-- Text hint for email field in the login page -->
+    <!-- Text hint untuk field email di login page -->
     <string name="hint_email">Email</string>
 
-    <!-- Text hint for password field in the login page -->
+    <!-- Text hint untuk field password di login page -->
     <string name="hint_pass">Password</string>
 
-    <!-- Label for editor menu option to save pet and leave editor [CHAR LIMIT=20] -->
+    <!-- Text untuk login button di login page -->
+    <string name="login">Login</string>
+
+    <!-- Label untuk menu opsi editor save peminjaman -->
     <string name="action_save">Save</string>
 </resources>

@@ -8,11 +8,14 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -21,6 +24,7 @@ import com.android.volley.toolbox.Volley;
 import com.project.dennis.transvision.Data.ConfigLink;
 import com.project.dennis.transvision.Models.Peminjaman;
 import com.project.dennis.transvision.Adapters.PeminjamanAdapter;
+import com.project.dennis.transvision.MySingleton;
 import com.project.dennis.transvision.R;
 
 import org.json.JSONArray;
@@ -28,9 +32,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements PeminjamanAdapter.ListItemClickListener, View.OnClickListener {
+public class MainActivity extends AppCompatActivity
+        implements PeminjamanAdapter.ListItemClickListener, View.OnClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private RecyclerView recyclerView;
@@ -38,23 +45,36 @@ public class MainActivity extends AppCompatActivity implements PeminjamanAdapter
     private List<Peminjaman> peminjamanList;
     private Toast mToast;
     private FloatingActionButton fab;
+    private TextView mHasMadeReq;
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        fab = findViewById(R.id.fab);
+        initView();
         fab.setOnClickListener(this);
-        recyclerView = findViewById(R.id.rv_peminjaman);
+        mToast = null;
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
 
-        if (savedInstanceState != null) {
+        getAttributeUser();
 
-        } else {
-            loadPeminjaman();
-        }
+        getPrefUser();
+        loadPeminjaman();
+    }
+
+    private void initView() {
+        fab = findViewById(R.id.fab);
+        recyclerView = findViewById(R.id.rv_peminjaman);
+        mHasMadeReq = findViewById(R.id.has_made_req);
+    }
+
+    private void getPrefUser() {
+        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
+        String stringHasMadeReq = sharedPreferences.getString("has_made_req", "");
+        mHasMadeReq.setText(stringHasMadeReq);
     }
 
     @Override
@@ -67,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements PeminjamanAdapter
 
     private void loadPeminjaman() {
         peminjamanList = new ArrayList<>();
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, ConfigLink.PEMINJAMAN,
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, ConfigLink.PEMINJAMAN,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -77,9 +97,11 @@ public class MainActivity extends AppCompatActivity implements PeminjamanAdapter
                                 JSONObject peminjamanObject = peminjamanArray.getJSONObject(i);
 
                                 String tujuan = peminjamanObject.getString(ConfigLink.TUJUAN);
+                                String keperluan = peminjamanObject.getString(ConfigLink.KEPERLUAN);
+                                String jumPenumpang = peminjamanObject.getString(ConfigLink.JUM_PENUMPANG);
                                 String tglPemakaian = peminjamanObject.getString(ConfigLink.TGL_PEMAKAIAN);
 
-                                Peminjaman peminjaman = new Peminjaman(tujuan, tglPemakaian);
+                                Peminjaman peminjaman = new Peminjaman(tujuan, keperluan, jumPenumpang, tglPemakaian);
                                 peminjamanList.add(peminjaman);
                             }
                             mAdapter = new PeminjamanAdapter(MainActivity.this, peminjamanList, MainActivity.this);
@@ -94,15 +116,19 @@ public class MainActivity extends AppCompatActivity implements PeminjamanAdapter
                     public void onErrorResponse(VolleyError error) {
                         Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
                     }
-                });
-
-        Volley.newRequestQueue(this).add(stringRequest);
+                }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put(ConfigLink.USER_ID, userId);
+                return params;
+            }
+        };
+        MySingleton.getInstance(this).addToRequestQueue(stringRequest);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu options from the res/menu/menu_editor.xml file.
-        // This adds menu items to the app bar.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -136,8 +162,8 @@ public class MainActivity extends AppCompatActivity implements PeminjamanAdapter
         editor.commit();
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+    private void getAttributeUser() {
+        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
+        userId = sharedPreferences.getString("user_id", "");
     }
 }

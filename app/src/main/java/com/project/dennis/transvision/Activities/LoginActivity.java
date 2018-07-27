@@ -32,10 +32,11 @@ import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private static final String TAG = LoginActivity.class.getSimpleName();
     private EditText mEmailEditText, mPasswordEditText;
     private Button mLoginButton;
     private AlertDialog.Builder mBuilder;
-    private String mUserId, mUsername, mEmail;
+    private String mUserId, mUsername, mEmail, mHasMade;
     private ProgressDialog mProgressDialog;
 
     @Override
@@ -62,13 +63,18 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mUserId = sharedPreferences.getString("user_id", "");
         mUsername = sharedPreferences.getString("username", "");
         mEmail = sharedPreferences.getString("email", "");
-
+        mHasMade = sharedPreferences.getString("has_made_req", "");
+        Log.d(TAG, "getPrefUser: "+mHasMade);
         mEmailEditText.setText(mEmail);
     }
 
     private void prefNotNull() {
         String emailString = mEmailEditText.getText().toString().trim();
-        if (emailString.length() > 0) {
+        if (emailString.length() > 0 && mHasMade.equals("1")) {
+            Intent intent = new Intent(this, WaitingActivity.class);
+            startActivity(intent);
+            finish();
+        } else if (emailString.length() > 0 && mHasMade.equals("0")) {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             finish();
@@ -101,20 +107,25 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     @Override
                     public void onResponse(String response) {
                         mProgressDialog.dismiss();
-                        Log.d("loginResponse", response);
                         try {
-                            JSONArray jsonArray = new JSONArray(response);
-                            JSONObject jsonObject = jsonArray.getJSONObject(0);
+                            JSONObject jsonObject = new JSONObject(response);
                             String status = jsonObject.getString("status");
                             if (status.equals("failed")) {
                                 displayAlert(jsonObject.getString("message"));
                             } else {
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 String userIdString = jsonObject.getString("user_id");
                                 String usernameString = jsonObject.getString("username");
                                 String emailString = jsonObject.getString("email");
-                                saveAttribute(userIdString, usernameString, emailString);
-                                startActivity(intent);
+                                String hasMadeReq = jsonObject.getString("has_made_req");
+                                saveAttribute(userIdString, usernameString, emailString, hasMadeReq);
+                                Log.d(TAG, "onResponse: "+hasMadeReq);
+                                if (hasMadeReq.equals("1")) {
+                                    Intent intentWaiting = new Intent(LoginActivity.this, WaitingActivity.class);
+                                    startActivity(intentWaiting);
+                                } else {
+                                    Intent intentWaiting = new Intent(LoginActivity.this, MainActivity.class);
+                                    startActivity(intentWaiting);
+                                }
                                 finish();
                             }
                         } catch (JSONException e) {
@@ -140,12 +151,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         MySingleton.getInstance(this).addToRequestQueue(stringRequest);
     }
 
-    private void saveAttribute(String user_id, String username, String email) {
+    private void saveAttribute(String user_id, String username, String email, String hasMadeReq) {
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("user_id", user_id);
         editor.putString("username", username);
         editor.putString("email", email);
+        editor.putString("has_made_req", hasMadeReq);
         editor.commit();
     }
 

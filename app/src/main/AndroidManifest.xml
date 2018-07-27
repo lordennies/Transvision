@@ -11,20 +11,31 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activities.MainActivity" />
+        <activity
+            android:name=".Activities.MainActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activities.EditorActivity"
-            android:parentActivityName=".Activities.MainActivity" />
-        <activity android:name=".Activities.LoginActivity">
+            android:parentActivityName=".Activities.MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activities.LoginActivity"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activities.DetailActivity" />
-        <activity android:name=".Activities.ConfirmationActivity" />
-        <activity android:name=".Activities.WaitingActivity"></activity>
+        <activity
+            android:name=".Activities.DetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activities.ConfirmationActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activities.WaitingActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>
