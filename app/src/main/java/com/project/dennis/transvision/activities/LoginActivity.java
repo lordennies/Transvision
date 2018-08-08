@@ -1,4 +1,4 @@
-package com.project.dennis.transvision.Activities;
+package com.project.dennis.transvision.activities;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -19,11 +19,10 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.project.dennis.transvision.Data.ConfigLink;
+import com.project.dennis.transvision.data.ConfigLink;
 import com.project.dennis.transvision.MySingleton;
 import com.project.dennis.transvision.R;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,7 +35,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private EditText mEmailEditText, mPasswordEditText;
     private Button mLoginButton;
     private AlertDialog.Builder mBuilder;
-    private String mUserId, mUsername, mEmail, mHasMade;
+    private String mUserId, mUsername, mEmail;
     private ProgressDialog mProgressDialog;
 
     @Override
@@ -47,38 +46,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         initView();
         mBuilder = new AlertDialog.Builder(this);
         mLoginButton.setOnClickListener(this);
-
-        getPrefUser();
-        prefNotNull();
     }
 
     private void initView() {
         mEmailEditText = findViewById(R.id.edit_user_email);
         mPasswordEditText = findViewById(R.id.edit_user_password);
         mLoginButton = findViewById(R.id.button_login);
-    }
-
-    private void getPrefUser() {
-        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
-        mUserId = sharedPreferences.getString("user_id", "");
-        mUsername = sharedPreferences.getString("username", "");
-        mEmail = sharedPreferences.getString("email", "");
-        mHasMade = sharedPreferences.getString("has_made_req", "");
-        Log.d(TAG, "getPrefUser: "+mHasMade);
-        mEmailEditText.setText(mEmail);
-    }
-
-    private void prefNotNull() {
-        String emailString = mEmailEditText.getText().toString().trim();
-        if (emailString.length() > 0 && mHasMade.equals("1")) {
-            Intent intent = new Intent(this, WaitingActivity.class);
-            startActivity(intent);
-            finish();
-        } else if (emailString.length() > 0 && mHasMade.equals("0")) {
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
     }
 
     @Override

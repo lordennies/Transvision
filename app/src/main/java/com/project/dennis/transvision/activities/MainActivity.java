@@ -1,14 +1,12 @@
-package com.project.dennis.transvision.Activities;
+package com.project.dennis.transvision.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,10 +18,9 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.project.dennis.transvision.Data.ConfigLink;
-import com.project.dennis.transvision.Models.Peminjaman;
-import com.project.dennis.transvision.Adapters.PeminjamanAdapter;
+import com.project.dennis.transvision.data.ConfigLink;
+import com.project.dennis.transvision.models.Peminjaman;
+import com.project.dennis.transvision.adapters.PeminjamanAdapter;
 import com.project.dennis.transvision.MySingleton;
 import com.project.dennis.transvision.R;
 

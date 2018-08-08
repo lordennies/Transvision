@@ -1,37 +1,21 @@
-package com.project.dennis.transvision.Activities;
+package com.project.dennis.transvision.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.project.dennis.transvision.Data.ConfigLink;
-import com.project.dennis.transvision.Models.Peminjaman;
-import com.project.dennis.transvision.MySingleton;
+import com.project.dennis.transvision.data.ConfigLink;
+import com.project.dennis.transvision.models.Peminjaman;
 import com.project.dennis.transvision.R;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class EditorActivity extends AppCompatActivity {
 

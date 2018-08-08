@@ -1,7 +1,6 @@
-package com.project.dennis.transvision.Activities;
+package com.project.dennis.transvision.activities;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +14,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,12 +22,11 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.project.dennis.transvision.Data.ConfigLink;
+import com.project.dennis.transvision.data.ConfigLink;
 import com.project.dennis.transvision.GpsService;
 import com.project.dennis.transvision.MySingleton;
 import com.project.dennis.transvision.R;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -110,7 +107,8 @@ public class TrackerActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
-                params.put("peminjaman_id", "3");
+                // peminjaman_id harusnya dinamis
+                params.put(ConfigLink.PEMINJAMAN_ID, "3");
                 params.put(ConfigLink.LAT, lat);
                 params.put(ConfigLink.LNG, lng);
                 return params;

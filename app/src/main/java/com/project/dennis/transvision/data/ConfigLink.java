@@ -1,4 +1,4 @@
-package com.project.dennis.transvision.Data;
+package com.project.dennis.transvision.data;
 
 public final class ConfigLink {
 
@@ -7,6 +7,7 @@ public final class ConfigLink {
 
     public static final String URL_MAIN = "http://kreatidea.web.id/api/";
     public static final String LOGIN = URL_MAIN + "login";
+    public static final String HAS_MADE_REQ = URL_MAIN + "hasMadeRequest";
     public static final String PEMINJAMAN = URL_MAIN + "pinjam";
     public static final String LOKASI = URL_MAIN + "setKoordinat";
 
@@ -14,6 +15,7 @@ public final class ConfigLink {
 
     public final static String ACTION = "action";
     public final static String USER_ID = "user_id";
+    public final static String PEMINJAMAN_ID = "peminjaman_id";
     public final static String TUJUAN = "tujuan";
     public final static String KEPERLUAN = "keperluan";
     public final static String JUM_PENUMPANG = "jum_penumpang";

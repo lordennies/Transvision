@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.project.dennis.transvision">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -15,33 +14,37 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".Activities.MainActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Activities.EditorActivity"
-            android:parentActivityName=".Activities.MainActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Activities.LoginActivity"
-            android:screenOrientation="portrait">
-        </activity>
-        <activity
-            android:name=".Activities.DetailActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Activities.ConfirmationActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Activities.WaitingActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Activities.TrackerActivity"
+            android:name=".activities.SplashActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activities.MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.EditorActivity"
+            android:parentActivityName=".activities.MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.LoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.DetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.ConfirmationActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.WaitingActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.TrackerActivity"
+            android:screenOrientation="portrait" />
+
         <service android:name=".GpsService" />
     </application>
+
 </manifest>

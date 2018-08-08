@@ -1,4 +1,4 @@
-package com.project.dennis.transvision.Models;
+package com.project.dennis.transvision.models;
 
 public class Peminjaman {
 

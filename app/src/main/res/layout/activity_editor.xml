@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="@dimen/activity_margin"
-    tools:context=".Activities.EditorActivity">
+    tools:context=".activities.EditorActivity">
 
     <EditText
         android:id="@+id/edit_tujuan"
