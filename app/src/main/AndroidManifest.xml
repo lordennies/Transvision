@@ -18,6 +18,7 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -45,6 +46,8 @@
             android:screenOrientation="portrait" />
 
         <service android:name=".GpsService" />
+
+        <activity android:name=".activities.UploadActivity"></activity>
     </application>
 
 </manifest>
