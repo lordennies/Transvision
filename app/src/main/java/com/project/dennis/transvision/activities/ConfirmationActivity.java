@@ -30,7 +30,8 @@ public class ConfirmationActivity extends AppCompatActivity implements View.OnCl
 
     private Button mKirimButton;
     private TextView mTujuanText, mKeperluanText, mJumPenumpangText, mTglPemakaianText;
-    private String userIdString, tujuanString, keperluanString, jumPenumpangString, tglPemakaianString;
+    private String userIdString, tujuanString, keperluanString, jumPenumpangString, tglPemakaianString,
+            peminjamanId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +94,7 @@ public class ConfirmationActivity extends AppCompatActivity implements View.OnCl
                             JSONObject jsonObject = jsonArray.getJSONObject(0);
                             String status = jsonObject.getString("status");
                             if (status.equals("success")) {
+                                peminjamanId = jsonObject.getString("peminjaman_id");
                                 saveAttribute();
                                 Intent intentWaitingAct = new Intent(ConfirmationActivity.this, WaitingActivity.class);
                                 startActivity(intentWaitingAct);
@@ -132,7 +134,7 @@ public class ConfirmationActivity extends AppCompatActivity implements View.OnCl
     private void saveAttribute() {
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("has_made_req", "1");
-        editor.commit();
+        editor.putString(ConfigLink.PEMINJAMAN_ID, peminjamanId);
+        editor.apply();
     }
 }

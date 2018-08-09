@@ -1,7 +1,10 @@
 package com.project.dennis.transvision.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,7 +29,8 @@ import java.util.Map;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private String userId, username, email;
+    private String userId;
+    private String email;
     private TextView emailTextView;
 
     @Override
@@ -34,17 +38,18 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        emailTextView = findViewById(R.id.tv_email);
+        initView();
         getPrefUser();
         prefNotNull();
+    }
 
-
+    private void initView() {
+        emailTextView = findViewById(R.id.tv_email);
     }
 
     private void getPrefUser() {
         SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
         userId = sharedPreferences.getString("user_id", "");
-        username = sharedPreferences.getString("username", "");
         email = sharedPreferences.getString("email", "");
         emailTextView.setText(email);
     }
@@ -52,7 +57,18 @@ public class SplashActivity extends AppCompatActivity {
     private void prefNotNull() {
         String emailString = emailTextView.getText().toString().trim();
         if (emailString.length() > 0) {
-            hasMadeRequest();
+            if (!isConnected(this)) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intentMain = new Intent(SplashActivity.this, MainActivity.class);
+                        startActivity(intentMain);
+                        finish();
+                    }
+                }, 1000);
+            } else {
+                hasMadeRequest();
+            }
         } else {
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -61,7 +77,26 @@ public class SplashActivity extends AppCompatActivity {
                     startActivity(intentLogin);
                     finish();
                 }
-            }, 3000);
+            }, 1000);
+        }
+    }
+
+    private boolean isConnected(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+        if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
+            android.net.NetworkInfo wifi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            android.net.NetworkInfo mobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+            if ((mobile != null && mobile.isConnectedOrConnecting()) ||
+                    (wifi != null && wifi.isConnectedOrConnecting())) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
         }
     }
 
@@ -81,7 +116,7 @@ public class SplashActivity extends AppCompatActivity {
                                         startActivity(intentMain);
                                         finish();
                                     }
-                                }, 3000);
+                                }, 1000);
                             } else {
                                 new Handler().postDelayed(new Runnable() {
                                     @Override
@@ -90,7 +125,7 @@ public class SplashActivity extends AppCompatActivity {
                                         startActivity(intentWaiting);
                                         finish();
                                     }
-                                }, 3000);
+                                }, 1000);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -99,7 +134,6 @@ public class SplashActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(SplashActivity.this, "Error bro!", Toast.LENGTH_LONG).show();
                         error.printStackTrace();
                     }
                 }) {

@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.project.dennis.transvision">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -15,10 +17,10 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".activities.SplashActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -31,7 +33,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.LoginActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/NoActionBar" />
         <activity
             android:name=".activities.DetailActivity"
             android:screenOrientation="portrait" />
@@ -44,10 +47,11 @@
         <activity
             android:name=".activities.TrackerActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.UploadActivity"
+            android:screenOrientation="portrait" />
 
         <service android:name=".GpsService" />
-
-        <activity android:name=".activities.UploadActivity"></activity>
     </application>
 
 </manifest>

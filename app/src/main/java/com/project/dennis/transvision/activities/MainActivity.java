@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
@@ -44,20 +45,21 @@ public class MainActivity extends AppCompatActivity
     private FloatingActionButton fab;
     private TextView mHasMadeReq;
     private String userId;
+    private View emptyView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         initView();
         fab.setOnClickListener(this);
         mToast = null;
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
-
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                LinearLayoutManager.VERTICAL);
+        recyclerView.addItemDecoration(dividerItemDecoration);
         getAttributeUser();
-
         getPrefUser();
         loadPeminjaman();
     }
@@ -66,6 +68,12 @@ public class MainActivity extends AppCompatActivity
         fab = findViewById(R.id.fab);
         recyclerView = findViewById(R.id.rv_peminjaman);
         mHasMadeReq = findViewById(R.id.has_made_req);
+        emptyView = findViewById(R.id.empty_view);
+    }
+
+    private void getAttributeUser() {
+        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
+        userId = sharedPreferences.getString("user_id", "");
     }
 
     private void getPrefUser() {
@@ -88,6 +96,8 @@ public class MainActivity extends AppCompatActivity
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        emptyView.setVisibility(View.GONE);
+                        recyclerView.setVisibility(View.VISIBLE);
                         try {
                             JSONArray peminjamanArray = new JSONArray(response);
                             for (int i = 0; i < peminjamanArray.length(); i++) {
@@ -111,7 +121,9 @@ public class MainActivity extends AppCompatActivity
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+                        recyclerView.setVisibility(View.GONE);
+                        emptyView.setVisibility(View.VISIBLE);
+//                        Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 }) {
             @Override
@@ -157,10 +169,5 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.clear();
         editor.commit();
-    }
-
-    private void getAttributeUser() {
-        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
-        userId = sharedPreferences.getString("user_id", "");
     }
 }

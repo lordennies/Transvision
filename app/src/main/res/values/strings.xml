@@ -12,4 +12,14 @@
 
     <!-- Label untuk menu opsi editor save peminjaman -->
     <string name="action_save">Save</string>
+
+    <string name="empty_title_text">Anda sedang offline...</string>
+
+    <string name="empty_subtitle_text">Koneksikan device anda dengan internet</string>
+
+    <string name="tujuan">Tujuan</string>
+    <string name="keperluan">Keperluan</string>
+    <string name="jumlah_penumpang">Jum Penumpang</string>
+    <string name="tgl_pemakaian">Tgl Pemakaian</string>
+    <string name="detail_permohonan">Detail Permohonan</string>
 </resources>

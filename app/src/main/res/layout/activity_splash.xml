@@ -4,18 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
-    android:padding="16dp"
+    android:padding="@dimen/activity_margin"
     tools:context=".activities.SplashActivity">
 
-    <TextView
+    <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="72dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:text="Welcome Screen"
-        android:textColor="#ffffff"
-        android:textSize="40sp"/>
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/transvision_logo" />
 
     <TextView
         android:id="@+id/tv_email"

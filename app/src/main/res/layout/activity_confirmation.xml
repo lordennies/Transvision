@@ -1,44 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="@dimen/activity_margin"
     tools:context=".activities.ConfirmationActivity">
 
-    <TextView
-        android:id="@+id/tv_tujuan"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="Kudus" />
+        android:layout_margin="8dp"
+        android:background="@drawable/customborder"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tv_keperluan"
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:text="@string/detail_permohonan"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <!-- Label -->
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:text="@string/tujuan" />
+
+            <TextView
+                android:id="@+id/tv_tujuan"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_gravity="end"
+                android:layout_weight="1"
+                android:text="Kudus"
+                android:textAlignment="textEnd" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <!-- Label -->
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:text="@string/keperluan" />
+
+            <TextView
+                android:id="@+id/tv_keperluan"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_gravity="end"
+                android:layout_weight="1"
+                android:text="Dismantle"
+                android:textAlignment="textEnd" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <!-- Label -->
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:text="@string/jumlah_penumpang" />
+
+            <TextView
+                android:id="@+id/tv_jum_penumpang"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_gravity="end"
+                android:layout_weight="1"
+                android:text="2"
+                android:textAlignment="textEnd" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <!-- Label -->
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:text="@string/tgl_pemakaian" />
+
+            <TextView
+                android:id="@+id/tv_tgl_pemakaian"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_gravity="end"
+                android:layout_weight="1"
+                android:text="17-08-2018"
+                android:textAlignment="textEnd" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        style="@android:style/ButtonBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="Dismantle" />
+        android:layout_alignParentBottom="true"
+        android:background="?attr/colorPrimary">
 
-    <TextView
-        android:id="@+id/tv_jum_penumpang"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="2" />
+        <Button
+            android:id="@+id/btn_kirim"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="Kirim"
+            android:textColor="?attr/colorBackgroundFloating" />
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/tv_tgl_pemakaian"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="25-07-2018" />
+    <!--<Button-->
+        <!--android:id="@+id/btn_kirim"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="Kirim" />-->
 
-    <Button
-        android:id="@+id/btn_kirim"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Kirim" />
-
-</LinearLayout>
+</RelativeLayout>

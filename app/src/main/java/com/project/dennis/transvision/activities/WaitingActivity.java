@@ -3,7 +3,9 @@ package com.project.dennis.transvision.activities;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -29,6 +31,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WaitingActivity extends AppCompatActivity {
+
+    private String userId, peminjamanId;
     private Button buttonCek;
     private ProgressDialog mProgressDialog;
     private AlertDialog.Builder mBuilder;
@@ -39,6 +43,7 @@ public class WaitingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_waiting);
 
         initView();
+        getPrefUser();
         mBuilder = new AlertDialog.Builder(this);
         buttonCek.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,6 +51,12 @@ public class WaitingActivity extends AppCompatActivity {
                 cekStatus();
             }
         });
+    }
+
+    private void getPrefUser() {
+        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
+        userId = sharedPreferences.getString("user_id", "");
+        peminjamanId = sharedPreferences.getString("peminjaman_id", "");
     }
 
     private void cekStatus() {
@@ -83,7 +94,8 @@ public class WaitingActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
-                params.put("peminjaman_id", "3");
+                params.put(ConfigLink.USER_ID, userId);
+                params.put(ConfigLink.PEMINJAMAN_ID, peminjamanId);
                 return params;
             }
         };

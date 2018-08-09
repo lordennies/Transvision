@@ -1,5 +1,7 @@
 package com.project.dennis.transvision.activities;
 
+import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,15 +13,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.DatePicker;
 import android.widget.EditText;
 
 import com.project.dennis.transvision.data.ConfigLink;
 import com.project.dennis.transvision.models.Peminjaman;
 import com.project.dennis.transvision.R;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+
 public class EditorActivity extends AppCompatActivity {
 
     private EditText mTujuanEditText, mKeperluanEditText, mJumPenumpangEditText, mTglPemakaianEditText;
+    private SimpleDateFormat dateFormatter;
 
     /** Untuk mengetahui form peminjaman sudah diedit (true) atau belum (false) */
     private boolean mPeminjamanHasChanged = false;
@@ -45,6 +54,39 @@ public class EditorActivity extends AppCompatActivity {
         mKeperluanEditText.setOnTouchListener(mTouchListener);
         mJumPenumpangEditText.setOnTouchListener(mTouchListener);
         mTglPemakaianEditText.setOnTouchListener(mTouchListener);
+
+        dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+        mTglPemakaianEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeKeyboard();
+                showDateDialog();
+            }
+        });
+    }
+
+    private void closeKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager inputMethodManager = (InputMethodManager)
+                    getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    private void showDateDialog() {
+        Calendar newCalendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                Calendar newDate = Calendar.getInstance();
+                newDate.set(year, monthOfYear, dayOfMonth);
+                mTglPemakaianEditText.setText(dateFormatter.format(newDate.getTime()));
+            }
+
+        },newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
+
+        datePickerDialog.show();
     }
 
     private void initView() {

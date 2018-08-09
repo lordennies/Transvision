@@ -1,6 +1,7 @@
 package com.project.dennis.transvision.activities;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -57,7 +59,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View view) {
         if (view == mLoginButton) {
+            closeKeyboard();
             loginCheck();
+        }
+    }
+
+    private void closeKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager inputMethodManager = (InputMethodManager)
+                    getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
@@ -87,18 +99,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 displayAlert(jsonObject.getString("message"));
                             } else {
                                 String userIdString = jsonObject.getString("user_id");
-                                String usernameString = jsonObject.getString("username");
                                 String emailString = jsonObject.getString("email");
-                                String hasMadeReq = jsonObject.getString("has_made_req");
-                                saveAttribute(userIdString, usernameString, emailString, hasMadeReq);
-                                Log.d(TAG, "onResponse: "+hasMadeReq);
-                                if (hasMadeReq.equals("1")) {
-                                    Intent intentWaiting = new Intent(LoginActivity.this, WaitingActivity.class);
-                                    startActivity(intentWaiting);
-                                } else {
-                                    Intent intentWaiting = new Intent(LoginActivity.this, MainActivity.class);
-                                    startActivity(intentWaiting);
-                                }
+                                saveAttribute(userIdString, emailString);
+                                Intent intentMain = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intentMain);
                                 finish();
                             }
                         } catch (JSONException e) {
@@ -109,7 +113,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         mProgressDialog.hide();
-                        Toast.makeText(LoginActivity.this, "Error bro!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(LoginActivity.this, "Tidak ada koneksi internet", Toast.LENGTH_LONG).show();
                         error.printStackTrace();
                     }
                 }) {
@@ -124,14 +128,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         MySingleton.getInstance(this).addToRequestQueue(stringRequest);
     }
 
-    private void saveAttribute(String user_id, String username, String email, String hasMadeReq) {
+    private void saveAttribute(String user_id, String email) {
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("user_id", user_id);
-        editor.putString("username", username);
         editor.putString("email", email);
-        editor.putString("has_made_req", hasMadeReq);
-        editor.commit();
+        editor.apply();
     }
 
     public void displayAlert(String message) {

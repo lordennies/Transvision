@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?><!-- Layout for the editor -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,36 +7,151 @@
     android:padding="@dimen/activity_margin"
     tools:context=".activities.EditorActivity">
 
-    <EditText
-        android:id="@+id/edit_tujuan"
+    <!-- Tujuan -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Tujuan"
-        android:inputType="textCapWords" />
+        android:orientation="horizontal">
 
-    <EditText
-        android:id="@+id/edit_keperluan"
+        <!-- Label -->
+        <TextView
+            style="@style/CategoryStyle"
+            android:text="@string/tujuan" />
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:paddingLeft="4dp"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/edit_tujuan"
+                style="@style/EditorFieldStyle"
+                android:inputType="textCapWords" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Keperluan -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Keperluan"
-        android:inputType="textCapSentences" />
+        android:orientation="horizontal">
 
-    <EditText
-        android:id="@+id/edit_jum_penumpang"
+        <!-- Label -->
+        <TextView
+            style="@style/CategoryStyle"
+            android:text="@string/keperluan" />
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/edit_keperluan"
+                style="@style/EditorFieldStyle"
+                android:inputType="textCapSentences" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Jum penumpang -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Jumlah Penumpang"
-        android:inputType="number" />
+        android:orientation="horizontal">
 
-    <EditText
-        android:id="@+id/edit_tgl_pemakaian"
+        <!-- Label -->
+        <TextView
+            style="@style/CategoryStyle"
+            android:text="@string/jumlah_penumpang" />
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/edit_jum_penumpang"
+                style="@style/EditorFieldStyle"
+                android:inputType="number"
+                android:maxLength="1"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Tanggal pemakaian -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Tanggal Pemakaian"
-        android:inputType="date" />
+        android:orientation="horizontal">
 
+        <!-- Label -->
+        <TextView
+            style="@style/CategoryStyle"
+            android:text="@string/tgl_pemakaian" />
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:orientation="vertical">
+
+            <!-- Input -->
+            <EditText
+                android:id="@+id/edit_tgl_pemakaian"
+                style="@style/EditorFieldStyle"
+                android:cursorVisible="false"
+                android:focusableInTouchMode="false"
+                android:inputType="text" />
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>
+
+    <!--
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="@dimen/activity_margin"
+        tools:context=".activities.EditorActivity">
+
+        <EditText
+            android:id="@+id/edit_tujuan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/tujuan"
+            android:inputType="textCapWords" />
+
+        <EditText
+            android:id="@+id/edit_keperluan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/keperluan"
+            android:inputType="textCapSentences" />
+
+        <EditText
+            android:id="@+id/edit_jum_penumpang"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:maxLength="1"
+            android:hint="@string/jumlah_penumpang"
+            android:inputType="number"
+            android:cursorVisible="false" />
+
+        <EditText
+            android:id="@+id/edit_tgl_pemakaian"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/tanggal_pemakaian"
+            android:focusableInTouchMode="false"
+            android:cursorVisible="false" />
+
+    </LinearLayout>-->
