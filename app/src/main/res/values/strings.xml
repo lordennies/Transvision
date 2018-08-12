@@ -22,4 +22,7 @@
     <string name="jumlah_penumpang">Jum Penumpang</string>
     <string name="tgl_pemakaian">Tgl Pemakaian</string>
     <string name="detail_permohonan">Detail Permohonan</string>
+    <string name="open_camera">Open Camera</string>
+    <string name="open_gallery">Open Gallery</string>
+    <string name="foto_kilometer">Foto Kilometer</string>
 </resources>

@@ -5,12 +5,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
+    android:orientation="vertical"
+    android:padding="@dimen/activity_margin"
     tools:context=".activities.UploadActivity">
 
+    <ImageView
+        android:id="@+id/photo_preview"
+        android:layout_width="wrap_content"
+        android:layout_height="174dp"
+        android:layout_marginBottom="@dimen/activity_margin"
+        android:contentDescription="@string/foto_kilometer"
+        android:src="@drawable/no_image" />
+
+    <Button
+        android:id="@+id/button_camera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/open_camera" />
+
     <TextView
+        android:id="@+id/has_picked_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Upload Activity"/>
+        android:text="0"/>
 
 </LinearLayout>
