@@ -55,7 +55,7 @@ public class EditorActivity extends AppCompatActivity {
         mJumPenumpangEditText.setOnTouchListener(mTouchListener);
         mTglPemakaianEditText.setOnTouchListener(mTouchListener);
 
-        dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+        dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         mTglPemakaianEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

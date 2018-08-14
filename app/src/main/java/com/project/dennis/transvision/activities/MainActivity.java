@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity
     private FloatingActionButton fab;
     private TextView mHasMadeReq;
     private String userId;
-    private View emptyView;
+    private View emptyView, emptyViewNoData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity
         recyclerView = findViewById(R.id.rv_peminjaman);
         mHasMadeReq = findViewById(R.id.has_made_req);
         emptyView = findViewById(R.id.empty_view);
+        emptyViewNoData = findViewById(R.id.empty_view_no_data);
     }
 
     private void getAttributeUser() {
@@ -100,6 +101,12 @@ public class MainActivity extends AppCompatActivity
                         recyclerView.setVisibility(View.VISIBLE);
                         try {
                             JSONArray peminjamanArray = new JSONArray(response);
+                            if (peminjamanArray.length() == 0) {
+                                recyclerView.setVisibility(View.GONE);
+                                emptyViewNoData.setVisibility(View.VISIBLE);
+                                return;
+                            }
+
                             for (int i = 0; i < peminjamanArray.length(); i++) {
                                 JSONObject peminjamanObject = peminjamanArray.getJSONObject(i);
 
@@ -168,6 +175,6 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.clear();
-        editor.commit();
+        editor.apply();
     }
 }

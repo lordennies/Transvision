@@ -3,6 +3,7 @@ package com.project.dennis.transvision.activities;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,7 +45,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
     private Button buttonCamera;
     private TextView hasPickedImage;
     private Bitmap bitmap;
-    private String convertImage;
+    private String convertImage, peminjamanId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,8 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
         initView();
         builder = new AlertDialog.Builder(this);
         buttonCamera.setOnClickListener(this);
+        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
+        peminjamanId = sharedPreferences.getString("peminjaman_id", "");
     }
 
     private void initView() {
@@ -123,6 +126,9 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
                             Toast.makeText(UploadActivity.this, responseString, Toast.LENGTH_LONG).show();
                             photoPreview.setImageResource(R.drawable.no_image);
                             hasPickedImage.setText("0");
+                            Intent trackerIntent = new Intent(UploadActivity.this, TrackerActivity.class);
+                            startActivity(trackerIntent);
+                            finishAffinity();
                         } catch (JSONException e) {
                             e.printStackTrace();
                             Toast.makeText(UploadActivity.this, "Error JSON-nya nih!", Toast.LENGTH_LONG).show();
@@ -138,6 +144,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
+                params.put(ConfigLink.PEMINJAMAN_ID, peminjamanId);
                 params.put("image", convertImage);
                 return params;
             }

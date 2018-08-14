@@ -25,4 +25,6 @@
     <string name="open_camera">Open Camera</string>
     <string name="open_gallery">Open Gallery</string>
     <string name="foto_kilometer">Foto Kilometer</string>
+    <string name="make_peminjaman">Buat permohonan peminjaman sekarang</string>
+    <string name="never_make_peminjaman">Anda belum pernah melakukan peminjaman</string>
 </resources>

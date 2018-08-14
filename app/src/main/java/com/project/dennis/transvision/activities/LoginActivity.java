@@ -78,7 +78,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         final String passwordString = mPasswordEditText.getText().toString().trim();
 
         if (TextUtils.isEmpty(emailString) || TextUtils.isEmpty(passwordString)) {
-            mProgressDialog.dismiss();
             displayAlert("Masukkan email dan password dengan benar");
             return;
         }
