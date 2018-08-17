@@ -32,7 +32,8 @@ import java.util.Map;
 
 public class WaitingActivity extends AppCompatActivity {
 
-    private String userId, peminjamanId;
+    private String userIdString;
+    private String peminjamanIdString;
     private Button buttonCek;
     private ProgressDialog mProgressDialog;
     private AlertDialog.Builder mBuilder;
@@ -55,8 +56,8 @@ public class WaitingActivity extends AppCompatActivity {
 
     private void getPrefUser() {
         SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
-        userId = sharedPreferences.getString("user_id", "");
-        peminjamanId = sharedPreferences.getString("peminjaman_id", "");
+        userIdString = sharedPreferences.getString("userId", "");
+        peminjamanIdString = sharedPreferences.getString("peminjamanId", "");
     }
 
     private void cekStatus() {
@@ -94,8 +95,8 @@ public class WaitingActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
-                params.put(ConfigLink.USER_ID, userId);
-                params.put(ConfigLink.PEMINJAMAN_ID, peminjamanId);
+                params.put(ConfigLink.USER_ID, userIdString);
+                params.put(ConfigLink.PEMINJAMAN_ID, peminjamanIdString);
                 return params;
             }
         };

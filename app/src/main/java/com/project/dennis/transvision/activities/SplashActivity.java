@@ -20,6 +20,9 @@ import com.android.volley.toolbox.StringRequest;
 import com.project.dennis.transvision.MySingleton;
 import com.project.dennis.transvision.R;
 import com.project.dennis.transvision.data.ConfigLink;
+import com.project.dennis.transvision.models.Result;
+import com.project.dennis.transvision.retrofit.ApiService;
+import com.project.dennis.transvision.retrofit.Client;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,35 +30,37 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+
 public class SplashActivity extends AppCompatActivity {
 
-    private String userId;
-    private String email;
+    private String userIdString;
     private TextView emailTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
         initView();
-        getPrefUser();
-        prefNotNull();
+        getPreferences();
+        checkStatus();
     }
 
     private void initView() {
-        emailTextView = findViewById(R.id.tv_email);
+        emailTextView = findViewById(R.id.email_text_view);
     }
 
-    private void getPrefUser() {
-        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
-        userId = sharedPreferences.getString("user_id", "");
-        email = sharedPreferences.getString("email", "");
+    private void getPreferences() {
+        SharedPreferences preferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
+        String email = preferences.getString("email", "");
+        userIdString = preferences.getString("userId", "");
         emailTextView.setText(email);
     }
 
-    private void prefNotNull() {
+    private void checkStatus() {
         String emailString = emailTextView.getText().toString().trim();
+        // Kesini jika sudah pernah login
         if (emailString.length() > 0) {
             if (!isConnected(this)) {
                 new Handler().postDelayed(new Runnable() {
@@ -69,7 +74,7 @@ public class SplashActivity extends AppCompatActivity {
             } else {
                 hasMadeRequest();
             }
-        } else {
+        } else { // Ke sini jika belum pernah login
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -101,49 +106,38 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void hasMadeRequest() {
-        StringRequest stringRequest = new StringRequest
-                (Request.Method.POST, ConfigLink.HAS_MADE_REQ, new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            String status = jsonObject.getString("status");
-                            if (status.equals("able")) {
-                                new Handler().postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Intent intentMain = new Intent(SplashActivity.this, MainActivity.class);
-                                        startActivity(intentMain);
-                                        finish();
-                                    }
-                                }, 1000);
-                            } else {
-                                new Handler().postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Intent intentWaiting = new Intent(SplashActivity.this, WaitingActivity.class);
-                                        startActivity(intentWaiting);
-                                        finish();
-                                    }
-                                }, 1000);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
-                    }
-                }) {
+        ApiService apiService = Client.getInstanceRetrofit();
+        apiService.hasMadeRequest(userIdString).enqueue(new Callback<Result>() {
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put(ConfigLink.USER_ID, userId);
-                return params;
+            public void onResponse(Call<Result> call, retrofit2.Response<Result> response) {
+                if (response.isSuccessful()) {
+                    if (response.body().getStatus().equals("able")) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
+                                startActivity(mainIntent);
+                                finish();
+                            }
+                        }, 1000);
+                    } else if (response.body().getStatus().equals("unable")) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent waitingIntent = new Intent(SplashActivity.this, WaitingActivity.class);
+                                startActivity(waitingIntent);
+                                finish();
+                            }
+                        }, 1000);
+                    }
+                }
             }
-        };
-        MySingleton.getInstance(this).addToRequestQueue(stringRequest);
+
+            @Override
+            public void onFailure(Call<Result> call, Throwable t) {
+                Toast.makeText(SplashActivity.this, "Gimana nih", Toast.LENGTH_SHORT).show();
+                Log.d("Splash", t.getLocalizedMessage());
+            }
+        });
     }
 }

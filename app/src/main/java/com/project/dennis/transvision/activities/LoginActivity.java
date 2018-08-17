@@ -16,52 +16,48 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.project.dennis.transvision.data.ConfigLink;
-import com.project.dennis.transvision.MySingleton;
 import com.project.dennis.transvision.R;
+import com.project.dennis.transvision.models.Result;
+import com.project.dennis.transvision.models.User;
+import com.project.dennis.transvision.retrofit.ApiService;
+import com.project.dennis.transvision.retrofit.Client;
+ 
+import retrofit2.Call;
+import retrofit2.Callback;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
-
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
+public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
-    private EditText mEmailEditText, mPasswordEditText;
-    private Button mLoginButton;
-    private AlertDialog.Builder mBuilder;
-    private String mUserId, mUsername, mEmail;
-    private ProgressDialog mProgressDialog;
+
+    private EditText emailEditText;
+    private EditText passwordEditText;
+    private Button loginButton;
+    private AlertDialog.Builder builder;
+    private ProgressDialog dialog;
+    private String userIdString;
+    private String emailString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         initView();
-        mBuilder = new AlertDialog.Builder(this);
-        mLoginButton.setOnClickListener(this);
+        builder = new AlertDialog.Builder(this);
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClickButton");
+                closeKeyboard();
+                loginCheck();
+            }
+        });
     }
 
     private void initView() {
-        mEmailEditText = findViewById(R.id.edit_user_email);
-        mPasswordEditText = findViewById(R.id.edit_user_password);
-        mLoginButton = findViewById(R.id.button_login);
-    }
-
-    @Override
-    public void onClick(View view) {
-        if (view == mLoginButton) {
-            closeKeyboard();
-            loginCheck();
-        }
+        loginButton = findViewById(R.id.button_login);
+        emailEditText = findViewById(R.id.email_edit_text);
+        passwordEditText = findViewById(R.id.password_edit_text);
     }
 
     private void closeKeyboard() {
@@ -74,81 +70,100 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void loginCheck() {
-        final String emailString = mEmailEditText.getText().toString().trim();
-        final String passwordString = mPasswordEditText.getText().toString().trim();
-
-        if (TextUtils.isEmpty(emailString) || TextUtils.isEmpty(passwordString)) {
+        Log.d(TAG, "loginCheck");
+        // Mengambil value dari edit text di login page
+        final String email = emailEditText.getText().toString().trim();
+        final String password = passwordEditText.getText().toString().trim();
+        // Cek apakah user mengosongkan salah satu atau kedua edit text
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
             displayAlert("Masukkan email dan password dengan benar");
             return;
         }
+        // Menampilkan dialog loading
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Mohon Tunggu...");
+        dialog.show();
 
-        mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setMessage("Mohon Tunggu...");
-        mProgressDialog.show();
-
-        StringRequest stringRequest = new StringRequest
-                (Request.Method.POST, ConfigLink.LOGIN, new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        mProgressDialog.dismiss();
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            String status = jsonObject.getString("status");
-                            if (status.equals("failed")) {
-                                displayAlert(jsonObject.getString("message"));
-                            } else {
-                                String userIdString = jsonObject.getString("user_id");
-                                String emailString = jsonObject.getString("email");
-                                saveAttribute(userIdString, emailString);
-                                Intent intentMain = new Intent(LoginActivity.this, MainActivity.class);
-                                startActivity(intentMain);
-                                finish();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        mProgressDialog.hide();
-                        Toast.makeText(LoginActivity.this, "Tidak ada koneksi internet", Toast.LENGTH_LONG).show();
-                        error.printStackTrace();
-                    }
-                }) {
+        ApiService apiService = Client.getInstanceRetrofit();
+        apiService.login(email, password).enqueue(new Callback<User>() {
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("email", emailString);
-                params.put("password", passwordString);
-                return params;
+            public void onResponse(Call<User> call, retrofit2.Response<User> response) {
+                if (response.isSuccessful()) {
+                    Log.d(TAG, "Status: " + response.body().getStatus());
+                    if (response.body().getStatus().equals("success")) {
+                        userIdString = response.body().getUserId();
+                        emailString = response.body().getEmail();
+                        saveAttribute();
+                        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(mainIntent);
+                        finish();
+//                        hasMadeRequest();
+                    } else if (response.body().getStatus().equals("failed")) {
+                        dialog.dismiss();
+                        displayAlert(response.body().getMessage());
+                    }
+                }
             }
-        };
-        MySingleton.getInstance(this).addToRequestQueue(stringRequest);
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                dialog.dismiss();
+                displayAlert("Device anda tidak terkoneksi internet");
+            }
+        });
     }
 
-    private void saveAttribute(String user_id, String email) {
-        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("user_id", user_id);
-        editor.putString("email", email);
+    private void saveAttribute() {
+        SharedPreferences preferences = getApplicationContext().getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("userId", userIdString);
+        editor.putString("email", emailString);
         editor.apply();
     }
 
+    private void hasMadeRequest() {
+        ApiService apiService = Client.getInstanceRetrofit();
+        apiService.hasMadeRequest(userIdString).enqueue(new Callback<Result>() {
+            @Override
+            public void onResponse(Call<Result> call, retrofit2.Response<Result> response) {
+                if (response.isSuccessful()) {
+                    if (response.body().getStatus().equals("able")) {
+                        dialog.dismiss();
+                        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(mainIntent);
+                        finish();
+                    } else if (response.body().getStatus().equals("unable")) {
+                        dialog.dismiss();
+                        Intent waitingIntent = new Intent(LoginActivity.this, WaitingActivity.class);
+                        startActivity(waitingIntent);
+                        finish();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Result> call, Throwable t) {
+                dialog.dismiss();
+                Toast.makeText(LoginActivity.this, "Gimana nih", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "onFailure: " + t.getLocalizedMessage());
+            }
+        });
+    }
+
     public void displayAlert(String message) {
-        mBuilder.setMessage(message);
-        mBuilder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+        builder.setMessage(message);
+        builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (dialog != null) {
                     dialog.dismiss();
                 }
-                mEmailEditText.setText("");
-                mPasswordEditText.setText("");
-                mEmailEditText.requestFocus();
+                emailEditText.setText("");
+                passwordEditText.setText("");
+                emailEditText.requestFocus();
             }
         });
-        AlertDialog alertDialog = mBuilder.create();
+        AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
 }

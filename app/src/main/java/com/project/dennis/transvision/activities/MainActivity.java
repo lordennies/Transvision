@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +25,8 @@ import com.project.dennis.transvision.models.Peminjaman;
 import com.project.dennis.transvision.adapters.PeminjamanAdapter;
 import com.project.dennis.transvision.MySingleton;
 import com.project.dennis.transvision.R;
+import com.project.dennis.transvision.retrofit.ApiService;
+import com.project.dennis.transvision.retrofit.Client;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,53 +37,68 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity
-        implements PeminjamanAdapter.ListItemClickListener, View.OnClickListener {
+import retrofit2.Call;
+import retrofit2.Callback;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    private String userId;
+    private TextView mHasMadeReq;
+    private FloatingActionButton fab;
     private RecyclerView recyclerView;
     private PeminjamanAdapter mAdapter;
-    private List<Peminjaman> peminjamanList;
-    private Toast mToast;
-    private FloatingActionButton fab;
-    private TextView mHasMadeReq;
-    private String userId;
-    private View emptyView, emptyViewNoData;
+    private ArrayList<Peminjaman> peminjamanList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // Inisialisasi view
         initView();
-        fab.setOnClickListener(this);
-        mToast = null;
+        // Set layout
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 LinearLayoutManager.VERTICAL);
         recyclerView.addItemDecoration(dividerItemDecoration);
-        getAttributeUser();
+        fab.setOnClickListener(this);
+
         getPrefUser();
-        loadPeminjaman();
+        getPeminjaman();
     }
 
     private void initView() {
         fab = findViewById(R.id.fab);
-        recyclerView = findViewById(R.id.rv_peminjaman);
         mHasMadeReq = findViewById(R.id.has_made_req);
-        emptyView = findViewById(R.id.empty_view);
-        emptyViewNoData = findViewById(R.id.empty_view_no_data);
-    }
-
-    private void getAttributeUser() {
-        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
-        userId = sharedPreferences.getString("user_id", "");
+        recyclerView = findViewById(R.id.rv_peminjaman);
     }
 
     private void getPrefUser() {
         SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
         String stringHasMadeReq = sharedPreferences.getString("has_made_req", "");
+        userId = sharedPreferences.getString("user_id", "");
         mHasMadeReq.setText(stringHasMadeReq);
+    }
+
+    private void getPeminjaman() {
+        ApiService apiService = Client.getInstanceRetrofit();
+        apiService.getPeminjaman(userId).enqueue(new Callback<ArrayList<Peminjaman>>() {
+            @Override
+            public void onResponse(Call<ArrayList<Peminjaman>> call, retrofit2.Response<ArrayList<Peminjaman>> response) {
+                if (response.isSuccessful()) {
+                    peminjamanList = response.body();
+                    mAdapter = new PeminjamanAdapter(peminjamanList, MainActivity.this);
+                    recyclerView.setAdapter(mAdapter);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<Peminjaman>> call, Throwable t) {
+                Toast.makeText(MainActivity.this, t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -89,58 +107,6 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(MainActivity.this, EditorActivity.class);
             startActivity(intent);
         }
-    }
-
-    private void loadPeminjaman() {
-        peminjamanList = new ArrayList<>();
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, ConfigLink.PEMINJAMAN,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        emptyView.setVisibility(View.GONE);
-                        recyclerView.setVisibility(View.VISIBLE);
-                        try {
-                            JSONArray peminjamanArray = new JSONArray(response);
-                            if (peminjamanArray.length() == 0) {
-                                recyclerView.setVisibility(View.GONE);
-                                emptyViewNoData.setVisibility(View.VISIBLE);
-                                return;
-                            }
-
-                            for (int i = 0; i < peminjamanArray.length(); i++) {
-                                JSONObject peminjamanObject = peminjamanArray.getJSONObject(i);
-
-                                String tujuan = peminjamanObject.getString(ConfigLink.TUJUAN);
-                                String keperluan = peminjamanObject.getString(ConfigLink.KEPERLUAN);
-                                String jumPenumpang = peminjamanObject.getString(ConfigLink.JUM_PENUMPANG);
-                                String tglPemakaian = peminjamanObject.getString(ConfigLink.TGL_PEMAKAIAN);
-
-                                Peminjaman peminjaman = new Peminjaman(tujuan, keperluan, jumPenumpang, tglPemakaian);
-                                peminjamanList.add(peminjaman);
-                            }
-                            mAdapter = new PeminjamanAdapter(MainActivity.this, peminjamanList, MainActivity.this);
-                            recyclerView.setAdapter(mAdapter);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        recyclerView.setVisibility(View.GONE);
-                        emptyView.setVisibility(View.VISIBLE);
-//                        Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put(ConfigLink.USER_ID, userId);
-                return params;
-            }
-        };
-        MySingleton.getInstance(this).addToRequestQueue(stringRequest);
     }
 
     @Override
@@ -160,15 +126,6 @@ public class MainActivity extends AppCompatActivity
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onListItemClick(int clickedItemIndex) {
-        if (mToast != null) {
-            mToast.cancel();
-        }
-        Intent intent = new Intent(this, DetailActivity.class);
-        startActivity(intent);
     }
 
     private void logout() {
