@@ -1,48 +1,36 @@
 package com.project.dennis.transvision.activities;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.project.dennis.transvision.MySingleton;
 import com.project.dennis.transvision.R;
 import com.project.dennis.transvision.data.ConfigLink;
-import com.project.dennis.transvision.models.Result;
-import com.project.dennis.transvision.retrofit.ApiService;
-import com.project.dennis.transvision.retrofit.Client;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import retrofit2.Call;
-import retrofit2.Callback;
+import com.project.dennis.transvision.models.User;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private String userIdString;
+    private static final String TAG = SplashActivity.class.getSimpleName();
+
     private TextView emailTextView;
+    private AlertDialog.Builder builder;
+    private String hasMadeReq;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         initView();
+        builder = new AlertDialog.Builder(this);
         getPreferences();
         checkStatus();
     }
@@ -54,27 +42,37 @@ public class SplashActivity extends AppCompatActivity {
     private void getPreferences() {
         SharedPreferences preferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
         String email = preferences.getString("email", "");
-        userIdString = preferences.getString("userId", "");
+        hasMadeReq = preferences.getString("hasMadeReq", "");
         emailTextView.setText(email);
     }
 
     private void checkStatus() {
         String emailString = emailTextView.getText().toString().trim();
+        Log.d("Splash", "email = "+emailString);
         // Kesini jika sudah pernah login
         if (emailString.length() > 0) {
-            if (!isConnected(this)) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intentMain = new Intent(SplashActivity.this, MainActivity.class);
-                        startActivity(intentMain);
-                        finish();
-                    }
-                }, 1000);
+            Log.d(TAG, "checkStatus: sudah login");
+            if (isConnected(this)) {
+                if (hasMadeReq.equals("") || hasMadeReq.equals("0")) {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Belum membuat permohonan
+                            Intent intentMain = new Intent(SplashActivity.this, MainActivity.class);
+                            startActivity(intentMain);
+                            finish();
+                        }
+                    }, 1000);
+                } else {
+                    Intent waitingIntent = new Intent(SplashActivity.this, WaitingActivity.class);
+                    startActivity(waitingIntent);
+                    finish();
+                }
             } else {
-                hasMadeRequest();
+                displayAlert("Koneksikan device anda dengan internet");
             }
         } else { // Ke sini jika belum pernah login
+            Log.d(TAG, "checkStatus: belum login");
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -105,39 +103,17 @@ public class SplashActivity extends AppCompatActivity {
         }
     }
 
-    private void hasMadeRequest() {
-        ApiService apiService = Client.getInstanceRetrofit();
-        apiService.hasMadeRequest(userIdString).enqueue(new Callback<Result>() {
+    public void displayAlert(String message) {
+        builder.setMessage(message);
+        builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
             @Override
-            public void onResponse(Call<Result> call, retrofit2.Response<Result> response) {
-                if (response.isSuccessful()) {
-                    if (response.body().getStatus().equals("able")) {
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
-                                startActivity(mainIntent);
-                                finish();
-                            }
-                        }, 1000);
-                    } else if (response.body().getStatus().equals("unable")) {
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Intent waitingIntent = new Intent(SplashActivity.this, WaitingActivity.class);
-                                startActivity(waitingIntent);
-                                finish();
-                            }
-                        }, 1000);
-                    }
+            public void onClick(DialogInterface dialog, int which) {
+                if (dialog != null) {
+                    dialog.dismiss();
                 }
             }
-
-            @Override
-            public void onFailure(Call<Result> call, Throwable t) {
-                Toast.makeText(SplashActivity.this, "Gimana nih", Toast.LENGTH_SHORT).show();
-                Log.d("Splash", t.getLocalizedMessage());
-            }
         });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 }

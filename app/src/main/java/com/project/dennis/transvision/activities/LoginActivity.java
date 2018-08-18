@@ -18,13 +18,14 @@ import android.widget.Toast;
 
 import com.project.dennis.transvision.data.ConfigLink;
 import com.project.dennis.transvision.R;
-import com.project.dennis.transvision.models.Result;
+import com.project.dennis.transvision.models.LoginResponse;
 import com.project.dennis.transvision.models.User;
 import com.project.dennis.transvision.retrofit.ApiService;
 import com.project.dennis.transvision.retrofit.Client;
  
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -37,6 +38,8 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressDialog dialog;
     private String userIdString;
     private String emailString;
+    private String peminjamanIdString;
+    private String hasMadeReqString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +50,6 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "onClickButton");
                 closeKeyboard();
                 loginCheck();
             }
@@ -70,7 +72,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginCheck() {
-        Log.d(TAG, "loginCheck");
         // Mengambil value dari edit text di login page
         final String email = emailEditText.getText().toString().trim();
         final String password = passwordEditText.getText().toString().trim();
@@ -83,30 +84,42 @@ public class LoginActivity extends AppCompatActivity {
         dialog = new ProgressDialog(this);
         dialog.setMessage("Mohon Tunggu...");
         dialog.show();
-
-        ApiService apiService = Client.getInstanceRetrofit();
-        apiService.login(email, password).enqueue(new Callback<User>() {
+        // Melakukan pengecekan login
+        Call<LoginResponse> call = Client.getInstanceRetrofit().login(email, password);
+        call.enqueue(new Callback<LoginResponse>() {
             @Override
-            public void onResponse(Call<User> call, retrofit2.Response<User> response) {
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful()) {
-                    Log.d(TAG, "Status: " + response.body().getStatus());
-                    if (response.body().getStatus().equals("success")) {
-                        userIdString = response.body().getUserId();
-                        emailString = response.body().getEmail();
-                        saveAttribute();
-                        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(mainIntent);
-                        finish();
-//                        hasMadeRequest();
-                    } else if (response.body().getStatus().equals("failed")) {
+                    LoginResponse loginResponse = response.body();
+                    if (loginResponse.getStatus().equals("success")) {
                         dialog.dismiss();
-                        displayAlert(response.body().getMessage());
+                        userIdString = loginResponse.getUser().getUserId();
+                        emailString = loginResponse.getUser().getEmail();
+                        hasMadeReqString = loginResponse.getUser().getHasMadeReq();
+                        peminjamanIdString = loginResponse.getUser().getPeminjamanId();
+                        Log.d(TAG, "userId = "+userIdString+"\nemail = "+emailString+"\npeminjamanId = "+peminjamanIdString);
+                        // Menyimpan data user ke SharedPreferences
+                        saveAttribute();
+                        if (hasMadeReqString.equals("0")) {
+                            // Menuju MainActivity jika belum membuat permohonan
+                            Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(mainIntent);
+                            finish();
+                        } else if (hasMadeReqString.equals("1")) {
+                            // Menuju WaitingActivity jika sudah membuat permohonan
+                            Intent waitingIntent = new Intent(LoginActivity.this, WaitingActivity.class);
+                            startActivity(waitingIntent);
+                            finish();
+                        }
+                    } else if (loginResponse.getStatus().equals("failed")) {
+                        dialog.dismiss();
+                        displayAlert("Email atau password anda salah");
                     }
                 }
             }
 
             @Override
-            public void onFailure(Call<User> call, Throwable t) {
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
                 dialog.dismiss();
                 displayAlert("Device anda tidak terkoneksi internet");
             }
@@ -118,36 +131,9 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("userId", userIdString);
         editor.putString("email", emailString);
+        editor.putString("hasMadeReq", hasMadeReqString);
+        editor.putString("peminjamanId", peminjamanIdString);
         editor.apply();
-    }
-
-    private void hasMadeRequest() {
-        ApiService apiService = Client.getInstanceRetrofit();
-        apiService.hasMadeRequest(userIdString).enqueue(new Callback<Result>() {
-            @Override
-            public void onResponse(Call<Result> call, retrofit2.Response<Result> response) {
-                if (response.isSuccessful()) {
-                    if (response.body().getStatus().equals("able")) {
-                        dialog.dismiss();
-                        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(mainIntent);
-                        finish();
-                    } else if (response.body().getStatus().equals("unable")) {
-                        dialog.dismiss();
-                        Intent waitingIntent = new Intent(LoginActivity.this, WaitingActivity.class);
-                        startActivity(waitingIntent);
-                        finish();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Result> call, Throwable t) {
-                dialog.dismiss();
-                Toast.makeText(LoginActivity.this, "Gimana nih", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "onFailure: " + t.getLocalizedMessage());
-            }
-        });
     }
 
     public void displayAlert(String message) {

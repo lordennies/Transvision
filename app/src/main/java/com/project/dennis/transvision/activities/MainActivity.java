@@ -21,6 +21,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.project.dennis.transvision.data.ConfigLink;
+import com.project.dennis.transvision.models.LoginResponse;
 import com.project.dennis.transvision.models.Peminjaman;
 import com.project.dennis.transvision.adapters.PeminjamanAdapter;
 import com.project.dennis.transvision.MySingleton;
@@ -45,7 +46,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private String userId;
-    private TextView mHasMadeReq;
     private FloatingActionButton fab;
     private RecyclerView recyclerView;
     private PeminjamanAdapter mAdapter;
@@ -64,27 +64,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 LinearLayoutManager.VERTICAL);
         recyclerView.addItemDecoration(dividerItemDecoration);
         fab.setOnClickListener(this);
-
         getPrefUser();
         getPeminjaman();
     }
 
     private void initView() {
         fab = findViewById(R.id.fab);
-        mHasMadeReq = findViewById(R.id.has_made_req);
         recyclerView = findViewById(R.id.rv_peminjaman);
     }
 
     private void getPrefUser() {
         SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
-        String stringHasMadeReq = sharedPreferences.getString("has_made_req", "");
-        userId = sharedPreferences.getString("user_id", "");
-        mHasMadeReq.setText(stringHasMadeReq);
+        userId = sharedPreferences.getString("userId", "");
     }
 
     private void getPeminjaman() {
-        ApiService apiService = Client.getInstanceRetrofit();
-        apiService.getPeminjaman(userId).enqueue(new Callback<ArrayList<Peminjaman>>() {
+        Call<ArrayList<Peminjaman>> call = Client.getInstanceRetrofit().getPeminjaman(userId);
+        call.enqueue(new Callback<ArrayList<Peminjaman>>() {
             @Override
             public void onResponse(Call<ArrayList<Peminjaman>> call, retrofit2.Response<ArrayList<Peminjaman>> response) {
                 if (response.isSuccessful()) {

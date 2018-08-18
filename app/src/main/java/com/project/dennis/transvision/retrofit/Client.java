@@ -13,7 +13,7 @@ public class Client {
 
     private static Retrofit getClient() {
 
-        String BASE_URL = "http://192.168.100.3/lordennies/transvision-cls/api/";
+        String BASE_URL = "http://192.168.100.7/lordennies/transvision-cls/api/";
 
         Gson gson = new GsonBuilder()
                 .setLenient()

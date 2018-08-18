@@ -23,6 +23,7 @@
             android:name=".activities.SplashActivity"
             android:screenOrientation="portrait"
             android:theme="@style/NoActionBar">
+            <!-- Activity yang pertama kali dieksekusi -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -39,7 +40,8 @@
         <activity
             android:name=".activities.LoginActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/NoActionBar" />
+            android:theme="@style/NoActionBar">
+        </activity>
         <activity
             android:name=".activities.DetailActivity"
             android:screenOrientation="portrait" />

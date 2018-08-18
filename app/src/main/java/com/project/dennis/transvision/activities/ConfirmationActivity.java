@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -18,6 +19,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.project.dennis.transvision.data.ConfigLink;
 import com.project.dennis.transvision.MySingleton;
 import com.project.dennis.transvision.R;
+import com.project.dennis.transvision.models.InsertResponse;
 import com.project.dennis.transvision.models.Peminjaman;
 import com.project.dennis.transvision.retrofit.ApiService;
 import com.project.dennis.transvision.retrofit.Client;
@@ -46,6 +48,7 @@ public class ConfirmationActivity extends AppCompatActivity {
     private String jumPenumpangString;
     private String tglPemakaianString;
     private String peminjamanId;
+    private ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,12 +95,12 @@ public class ConfirmationActivity extends AppCompatActivity {
     }
 
     private void kirimRequest() {
-        final ProgressDialog mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setMessage("Mohon Tunggu...");
-        mProgressDialog.show();
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Mohon Tunggu...");
+        dialog.show();
 
         ApiService apiService = Client.getInstanceRetrofit();
-        Call<ResponseBody> call = apiService.addNewPeminjaman(
+        Call<InsertResponse> call = apiService.addNewPeminjaman(
                 "create",
                 userIdString,
                 tujuanString,
@@ -105,11 +108,14 @@ public class ConfirmationActivity extends AppCompatActivity {
                 jumPenumpangString,
                 tglPemakaianString
         );
-        call.enqueue(new Callback<ResponseBody>() {
+        call.enqueue(new Callback<InsertResponse>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+            public void onResponse(Call<InsertResponse> call, retrofit2.Response<InsertResponse> response) {
                 if (response.isSuccessful()) {
-                    mProgressDialog.dismiss();
+                    InsertResponse insertResponse = response.body();
+                    peminjamanId = insertResponse.getPeminjamanId();
+                    saveAttribute();
+                    dialog.dismiss();
                     Intent intentWaitingAct = new Intent(ConfirmationActivity.this, WaitingActivity.class);
                     startActivity(intentWaitingAct);
                     finishAffinity();
@@ -119,16 +125,17 @@ public class ConfirmationActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<InsertResponse> call, Throwable t) {
                 Toast.makeText(ConfirmationActivity.this, "Permohonan gagal dikirim", Toast.LENGTH_SHORT).show();
+                Log.d("Konfirmasi", "onFailure: "+t.getMessage());
             }
         });
     }
 
     private void saveAttribute() {
-        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(ConfigLink.PEMINJAMAN_ID, peminjamanId);
+        SharedPreferences preferences = getApplicationContext().getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("peminjamanId", peminjamanId);
         editor.apply();
     }
 }

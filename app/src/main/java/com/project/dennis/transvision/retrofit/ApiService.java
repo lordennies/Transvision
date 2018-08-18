@@ -1,7 +1,9 @@
 package com.project.dennis.transvision.retrofit;
 
+import com.project.dennis.transvision.models.InsertResponse;
+import com.project.dennis.transvision.models.LoginResponse;
 import com.project.dennis.transvision.models.Peminjaman;
-import com.project.dennis.transvision.models.Result;
+import com.project.dennis.transvision.models.PermohonanResponse;
 import com.project.dennis.transvision.models.User;
 
 import java.util.ArrayList;
@@ -20,15 +22,16 @@ public interface ApiService {
     @GET("pinjam")
     Call<ArrayList<Peminjaman>> getPeminjaman(@Query("user_id") String userId);
 
+    @FormUrlEncoded
     @POST("login")
-    Call<User> login(@Query("email") String email, @Query("password") String password);
-
-    @POST("hasMadeRequest")
-    Call<Result> hasMadeRequest(@Query("user_id") String userId);
+    Call<LoginResponse> login(
+            @Field("email") String email,
+            @Field("password") String password
+    );
 
     @FormUrlEncoded
     @POST("pinjam")
-    Call<ResponseBody> addNewPeminjaman(
+    Call<InsertResponse> addNewPeminjaman(
             @Field("action") String action,
             @Field("user_id") String userId,
             @Field("tujuan") String tujuan,
@@ -36,4 +39,8 @@ public interface ApiService {
             @Field("jum_penumpang") String jumPenumpang,
             @Field("tgl_pemakaian") String tglPemakaian
     );
+
+    @FormUrlEncoded
+    @POST("cekStatusPermohonan")
+    Call<PermohonanResponse> cekStatusPermohonan(@Field("peminjaman_id") String peminjamanId);
 }

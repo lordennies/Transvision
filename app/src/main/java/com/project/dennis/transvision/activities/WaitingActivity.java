@@ -23,6 +23,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.project.dennis.transvision.MySingleton;
 import com.project.dennis.transvision.R;
 import com.project.dennis.transvision.data.ConfigLink;
+import com.project.dennis.transvision.models.PermohonanResponse;
+import com.project.dennis.transvision.retrofit.Client;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,22 +32,24 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+
 public class WaitingActivity extends AppCompatActivity {
 
     private String userIdString;
     private String peminjamanIdString;
     private Button buttonCek;
-    private ProgressDialog mProgressDialog;
-    private AlertDialog.Builder mBuilder;
+    private ProgressDialog dialog;
+    private AlertDialog.Builder builder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waiting);
-
         initView();
         getPrefUser();
-        mBuilder = new AlertDialog.Builder(this);
+        builder = new AlertDialog.Builder(this);
         buttonCek.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,81 +59,57 @@ public class WaitingActivity extends AppCompatActivity {
     }
 
     private void getPrefUser() {
-        SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
-        userIdString = sharedPreferences.getString("userId", "");
-        peminjamanIdString = sharedPreferences.getString("peminjamanId", "");
+        SharedPreferences preferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
+        userIdString = preferences.getString("userId", "");
+        peminjamanIdString = preferences.getString("peminjamanId", "");
+        Log.d("WaitingAct", "peminjamanIdPref : "+peminjamanIdString);
     }
 
     private void cekStatus() {
-        mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setMessage("Mohon Tunggu...");
-        mProgressDialog.show();
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Mohon Tunggu...");
+        dialog.show();
 
-        StringRequest stringRequest = new StringRequest
-                (Request.Method.POST, ConfigLink.STATUS, new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        mProgressDialog.dismiss();
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            String statusReq = jsonObject.getString("status");
-                            if (statusReq.equals("pending")) {
-                                displayAlert("Permohonan anda belum dikonfirmasi oleh admin.", statusReq);
-                            } else if (statusReq.equals("diizinkan")) {
-                                displayAlert("Permohonan anda disetujui. Silahkan lanjut.", statusReq);
-                            } else {
-                                displayAlert("Permohonan anda ditolak. Anda bisa membuat permohonan lagi.", statusReq);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        mProgressDialog.hide();
-                        Toast.makeText(WaitingActivity.this, "Error bro!", Toast.LENGTH_LONG).show();
-                        error.printStackTrace();
-                    }
-                }) {
+        Call<PermohonanResponse> call = Client.getInstanceRetrofit().cekStatusPermohonan(peminjamanIdString);
+        call.enqueue(new Callback<PermohonanResponse>() {
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put(ConfigLink.USER_ID, userIdString);
-                params.put(ConfigLink.PEMINJAMAN_ID, peminjamanIdString);
-                return params;
+            public void onResponse(Call<PermohonanResponse> call, retrofit2.Response<PermohonanResponse> response) {
+                if (response.isSuccessful()) {
+                    PermohonanResponse permohonanResponse = response.body();
+                    String status = permohonanResponse.getStatus();
+                    dialog.dismiss();
+                    switch (status) {
+                        case "pending":
+                            Toast.makeText(WaitingActivity.this,
+                                    "Permohonan anda belum dikonfirmasi atasan",
+                                    Toast.LENGTH_SHORT).show();
+                            break;
+                        case "diizinkan":
+                            Toast.makeText(WaitingActivity.this,
+                                    "Permohonan anda disetujui, silahkan menuju proses selanjutnya",
+                                    Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(WaitingActivity.this, UploadActivity.class));
+                            finish();
+                            break;
+                        case "ditolak":
+                            Toast.makeText(WaitingActivity.this,
+                                    "Permohonan anda ditolak",
+                                    Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(WaitingActivity.this, MainActivity.class));
+                            finish();
+                            break;
+                    }
+                }
             }
-        };
-        MySingleton.getInstance(this).addToRequestQueue(stringRequest);
+
+            @Override
+            public void onFailure(Call<PermohonanResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     private void initView() {
         buttonCek = (Button) findViewById(R.id.button_cek);
-    }
-
-    public void displayAlert(String message, final String statusReq) {
-        mBuilder.setMessage(message);
-        mBuilder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (dialog != null) {
-                    if (statusReq.equals("pending")) {
-                        dialog.dismiss();
-                    } else if (statusReq.equals("diizinkan")) {
-                        dialog.dismiss();
-                        Intent intentUpload = new Intent(WaitingActivity.this, UploadActivity.class);
-                        startActivity(intentUpload);
-                        finishAffinity();
-                    } else if (statusReq.equals("ditolak")) {
-                        dialog.dismiss();
-                        Intent intentMain = new Intent(WaitingActivity.this, MainActivity.class);
-                        startActivity(intentMain);
-                        finishAffinity();
-                    }
-                }
-            }
-        });
-        AlertDialog alertDialog = mBuilder.create();
-        alertDialog.show();
     }
 }
