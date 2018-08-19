@@ -11,6 +11,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,6 +28,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.project.dennis.transvision.MySingleton;
 import com.project.dennis.transvision.R;
 import com.project.dennis.transvision.data.ConfigLink;
+import com.project.dennis.transvision.models.UploadResponse;
+import com.project.dennis.transvision.retrofit.Client;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,9 +39,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+
 public class UploadActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private ProgressDialog progressDialog;
+    private ProgressDialog dialog;
     private AlertDialog.Builder builder;
     private static final int CAM_REQUEST = 100;
     private ImageView photoPreview;
@@ -55,7 +63,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
         builder = new AlertDialog.Builder(this);
         buttonCamera.setOnClickListener(this);
         SharedPreferences sharedPreferences = getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
-        peminjamanId = sharedPreferences.getString("peminjaman_id", "");
+        peminjamanId = sharedPreferences.getString("peminjamanId", "");
     }
 
     private void initView() {
@@ -105,51 +113,41 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
 
     private void uploadImage() {
         if (hasPickedImage.getText().equals("0")) {
-            displayAlert("Anda belum memilih foto");
+            displayAlert("Anda belum mengambil gambar");
             return;
         }
-
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Mohon Tunggu...");
-        progressDialog.show();
-
+        // Tampilkan progress dialog
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Mohon Tunggu...");
+        dialog.show();
+        // ubah gambar ke format string
         imageToString();
-
-        StringRequest stringRequest = new StringRequest
-                (Request.Method.POST, ConfigLink.UPLOAD, new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        progressDialog.dismiss();
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            String responseString = jsonObject.getString("response");
-                            Toast.makeText(UploadActivity.this, responseString, Toast.LENGTH_LONG).show();
-                            photoPreview.setImageResource(R.drawable.no_image);
-                            hasPickedImage.setText("0");
-                            Intent trackerIntent = new Intent(UploadActivity.this, TrackerActivity.class);
-                            startActivity(trackerIntent);
-                            finishAffinity();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            Toast.makeText(UploadActivity.this, "Error JSON-nya nih!", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        progressDialog.dismiss();
-                        Toast.makeText(UploadActivity.this, "Error Response nya nih!", Toast.LENGTH_LONG).show();
-                    }
-                }) {
+        // Upload gambar ke server
+        Call<UploadResponse> call = Client.getInstanceRetrofit().upload(convertImage, peminjamanId);
+        call.enqueue(new Callback<UploadResponse>() {
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put(ConfigLink.PEMINJAMAN_ID, peminjamanId);
-                params.put("image", convertImage);
-                return params;
+            public void onResponse(Call<UploadResponse> call, retrofit2.Response<UploadResponse> response) {
+                dialog.dismiss();
+                if (response.isSuccessful()) {
+                    UploadResponse uploadResponse = response.body();
+                    if (uploadResponse.getStatus().equals("success")) {
+                        startActivity(new Intent(UploadActivity.this, TrackerActivity.class));
+                        finish();
+                        Toast.makeText(UploadActivity.this, "Gambar ditambahkan", Toast.LENGTH_SHORT).show();
+                    } else if (uploadResponse.getStatus().equals("failed")) {
+                        Toast.makeText(UploadActivity.this, "Gambar gagal ditambahkan", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(UploadActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                }
             }
-        };
-        MySingleton.getInstance(UploadActivity.this).addToRequestQueue(stringRequest);
+
+            @Override
+            public void onFailure(Call<UploadResponse> call, Throwable t) {
+                dialog.dismiss();
+                Toast.makeText(UploadActivity.this, "Gambar gagal ditambahkan", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public void displayAlert(String message) {

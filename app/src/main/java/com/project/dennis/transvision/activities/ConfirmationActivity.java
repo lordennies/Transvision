@@ -48,6 +48,7 @@ public class ConfirmationActivity extends AppCompatActivity {
     private String jumPenumpangString;
     private String tglPemakaianString;
     private String peminjamanId;
+    private String hasMadeReq;
     private ProgressDialog dialog;
 
     @Override
@@ -113,14 +114,20 @@ public class ConfirmationActivity extends AppCompatActivity {
             public void onResponse(Call<InsertResponse> call, retrofit2.Response<InsertResponse> response) {
                 if (response.isSuccessful()) {
                     InsertResponse insertResponse = response.body();
-                    peminjamanId = insertResponse.getPeminjamanId();
-                    saveAttribute();
-                    dialog.dismiss();
-                    Intent intentWaitingAct = new Intent(ConfirmationActivity.this, WaitingActivity.class);
-                    startActivity(intentWaitingAct);
-                    finishAffinity();
-                    String message = "Permohonan sudah dikirim";
-                    Toast.makeText(ConfirmationActivity.this, message, Toast.LENGTH_SHORT).show();
+                    if (insertResponse.getStatus().equals("success")) {
+                        peminjamanId = insertResponse.getPeminjamanId();
+                        saveAttribute();
+                        dialog.dismiss();
+                        Intent intentWaitingAct = new Intent(ConfirmationActivity.this, WaitingActivity.class);
+                        startActivity(intentWaitingAct);
+                        finishAffinity();
+                        String message = "Permohonan sudah dikirim";
+                        Toast.makeText(ConfirmationActivity.this, message, Toast.LENGTH_SHORT).show();
+                    } else if (insertResponse.getStatus().equals("failed")) {
+                        Toast.makeText(ConfirmationActivity.this,
+                                "Permohonan gagal dikirim",
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
@@ -135,6 +142,7 @@ public class ConfirmationActivity extends AppCompatActivity {
     private void saveAttribute() {
         SharedPreferences preferences = getApplicationContext().getSharedPreferences(ConfigLink.LOGIN_PREF, MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("hasMadeReq", "1");
         editor.putString("peminjamanId", peminjamanId);
         editor.apply();
     }

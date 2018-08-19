@@ -53,6 +53,7 @@ public class SplashActivity extends AppCompatActivity {
         if (emailString.length() > 0) {
             Log.d(TAG, "checkStatus: sudah login");
             if (isConnected(this)) {
+                Log.d("Splash", "hasMadeReq = "+hasMadeReq);
                 if (hasMadeReq.equals("") || hasMadeReq.equals("0")) {
                     new Handler().postDelayed(new Runnable() {
                         @Override
@@ -64,12 +65,24 @@ public class SplashActivity extends AppCompatActivity {
                         }
                     }, 1000);
                 } else {
-                    Intent waitingIntent = new Intent(SplashActivity.this, WaitingActivity.class);
-                    startActivity(waitingIntent);
-                    finish();
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Sudah membuat permohonan
+                            Intent waitingIntent = new Intent(SplashActivity.this, WaitingActivity.class);
+                            startActivity(waitingIntent);
+                            finish();
+                        }
+                    }, 1000);
                 }
             } else {
-                displayAlert("Koneksikan device anda dengan internet");
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Device tidak terkoneksi internet
+                        displayAlert("Koneksikan device anda dengan internet");
+                    }
+                }, 1000);
             }
         } else { // Ke sini jika belum pernah login
             Log.d(TAG, "checkStatus: belum login");

@@ -4,6 +4,7 @@ import com.project.dennis.transvision.models.InsertResponse;
 import com.project.dennis.transvision.models.LoginResponse;
 import com.project.dennis.transvision.models.Peminjaman;
 import com.project.dennis.transvision.models.PermohonanResponse;
+import com.project.dennis.transvision.models.UploadResponse;
 import com.project.dennis.transvision.models.User;
 
 import java.util.ArrayList;
@@ -43,4 +44,11 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("cekStatusPermohonan")
     Call<PermohonanResponse> cekStatusPermohonan(@Field("peminjaman_id") String peminjamanId);
+
+    @FormUrlEncoded
+    @POST("upload")
+    Call<UploadResponse> upload(
+            @Field("image") String image,
+            @Field("peminjaman_id") String peminjamanId
+    );
 }
